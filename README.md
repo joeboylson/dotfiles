@@ -22,25 +22,26 @@ stow -t ~ -D tmux   # remove the symlinks
 stow -t ~ -R tmux   # restow after changes
 ```
 
+Use `--no-folding` for the `claude` package:
+
+```bash
+stow --no-folding -t ~ claude
+```
+
+Without it, stow links whole directories when it can, so `~/.claude/skills`
+would become a single symlink into this repo and nothing else could add a skill
+there. `--no-folding` makes stow create real directories and link each file, so
+other repos can drop their own skills alongside these.
+
 ## Packages
 
 | Package     | Links |
 | ----------- | ----- |
 | `tmux`      | `~/.tmux.conf` |
-| `claude`    | `~/.claude/commands/` |
+| `claude`    | `~/.claude/commands/`, `~/.claude/skills/slag-design-system/` |
 | `alacritty` | `~/.config/alacritty/slag.toml`, `slag-light.toml` |
 | `nvim`      | `~/.config/nvim/colors/slag.lua`, `slag-light.lua` |
 | `vscode`    | `~/.vscode/extensions/slag/` |
-| `claude-skills` | `~/.claude/skills/slag-design-system/` |
-
-`claude-skills` is the one package that isn't stowed into `~`. `~/.claude/skills`
-is itself a symlink into another repo, and stow refuses to put anything inside a
-directory it doesn't own. So point stow straight at the skills directory instead
-of at home:
-
-```bash
-stow -t ~/.claude/skills claude-skills      # and -D / -R the same way
-```
 
 ## Slag theme
 
