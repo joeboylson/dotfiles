@@ -45,3 +45,22 @@ After stowing:
   `general.import = ["~/.config/alacritty/slag.toml"]`
 - **Neovim** — `:colorscheme slag` (or `slag-light`)
 - **VS Code** — reload the window, then pick "Slag" in the theme picker
+
+## Publishing the VS Code theme
+
+Tagging is the whole release. CI packages the extension and pushes it to the
+VS Code Marketplace and Open VSX:
+
+```bash
+git tag slag-v0.1.0 && git push origin slag-v0.1.0
+```
+
+The tag only triggers the run — `vscode/.vscode/extensions/slag/package.json`
+holds the real version, and CI fails the release if the two disagree. Bump it
+in the theme project's `package.mjs`, regenerate, commit, then tag.
+
+To test the packaging without shipping, run the workflow manually from the
+Actions tab; it builds the `.vsix` and attaches it as an artifact.
+
+Two repo secrets are required: `VSCE_PAT` (Azure DevOps, Marketplace > Manage)
+and `OVSX_PAT` (open-vsx.org).

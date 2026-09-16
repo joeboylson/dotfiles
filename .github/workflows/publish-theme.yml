@@ -1,0 +1,79 @@
+# Publishes the Slag VS Code theme to both marketplaces when a tag is pushed.
+#
+# Tag the release to ship it:
+#   git tag slag-v0.1.0 && git push origin slag-v0.1.0
+#
+# The tag is the trigger, but package.json stays the source of truth for the
+# version — the job fails on a mismatch rather than silently shipping the wrong
+# number. Bump it in the theme project's package.mjs, regenerate, then tag.
+name: Publish Slag theme
+
+on:
+  push:
+    tags:
+      - "slag-v*"
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Build and upload the .vsix without publishing"
+        type: boolean
+        default: true
+
+env:
+  EXT_DIR: vscode/.vscode/extensions/slag
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Check the tag matches the manifest
+        if: startsWith(github.ref, 'refs/tags/')
+        run: |
+          manifest=$(node -p "require('./$EXT_DIR/package.json').version")
+          tagged="${GITHUB_REF_NAME#slag-v}"
+          if [ "$manifest" != "$tagged" ]; then
+            echo "::error::tag $GITHUB_REF_NAME wants $tagged but package.json says $manifest"
+            exit 1
+          fi
+          echo "version=$manifest" >> "$GITHUB_ENV"
+
+      - name: Package
+        working-directory: ${{ env.EXT_DIR }}
+        run: npx --yes @vscode/vsce@latest package --out "$GITHUB_WORKSPACE/slag.vsix"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: slag-vsix
+          path: slag.vsix
+
+      # Everything below only runs for a real tagged release.
+      - name: Publish to the VS Code Marketplace
+        if: startsWith(github.ref, 'refs/tags/')
+        working-directory: ${{ env.EXT_DIR }}
+        env:
+          VSCE_PAT: ${{ secrets.VSCE_PAT }}
+        run: npx --yes @vscode/vsce@latest publish --packagePath "$GITHUB_WORKSPACE/slag.vsix"
+
+      - name: Publish to Open VSX
+        if: startsWith(github.ref, 'refs/tags/')
+        env:
+          OVSX_PAT: ${{ secrets.OVSX_PAT }}
+        run: npx --yes ovsx@latest publish "$GITHUB_WORKSPACE/slag.vsix" -p "$OVSX_PAT"
+
+      - name: Attach the .vsix to a release
+        if: startsWith(github.ref, 'refs/tags/')
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" slag.vsix \
+            --title "Slag $version" \
+            --notes "Slag $version — published to the VS Code Marketplace and Open VSX."
