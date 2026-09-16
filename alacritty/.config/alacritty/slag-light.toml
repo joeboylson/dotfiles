@@ -1,0 +1,73 @@
+# Slag Light — generated from palette.mjs, do not edit by hand.
+#
+# Import from your alacritty.toml:
+#   general.import = ["~/.config/alacritty/slag-light.toml"]
+
+[colors.primary]
+background = "#f0f0f0"
+foreground = "#2a2a2a"
+dim_foreground = "#666666"
+bright_foreground = "#2a2a2a"
+
+[colors.cursor]
+text = "#1a1a1a"
+cursor = "#b57614"
+
+[colors.vi_mode_cursor]
+text = "#f0f0f0"
+cursor = "#076678"
+
+[colors.selection]
+text = "CellForeground"
+background = "#decbae"
+
+[colors.search.matches]
+foreground = "#1a1a1a"
+background = "#b57614"
+
+[colors.search.focused_match]
+foreground = "#1a1a1a"
+background = "#b57614"
+
+[colors.footer_bar]
+foreground = "#2a2a2a"
+background = "#dcdcdc"
+
+[colors.hints.start]
+foreground = "#1a1a1a"
+background = "#b57614"
+
+[colors.hints.end]
+foreground = "#2a2a2a"
+background = "#d4d4d4"
+
+# The same 16 colors the editor terminal uses.
+[colors.normal]
+black = "#2a2a2a"
+red = "#9d0006"
+green = "#6b670d"
+yellow = "#b57614"
+blue = "#076678"
+magenta = "#8f3f71"
+cyan = "#36684a"
+white = "#a8a8a8"
+
+[colors.bright]
+black = "#666666"
+red = "#9d0006"
+green = "#6b670d"
+yellow = "#b57614"
+blue = "#076678"
+magenta = "#8f3f71"
+cyan = "#36684a"
+white = "#c4c4c4"
+
+[colors.dim]
+black = "#2a2a2a"
+red = "#9d0006"
+green = "#6b670d"
+yellow = "#b57614"
+blue = "#076678"
+magenta = "#8f3f71"
+cyan = "#36684a"
+white = "#a8a8a8"

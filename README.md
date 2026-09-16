@@ -24,6 +24,24 @@ stow -t ~ -R tmux   # restow after changes
 
 ## Packages
 
-| Package | Links |
-| ------- | ----- |
-| `tmux`  | `~/.tmux.conf` |
+| Package     | Links |
+| ----------- | ----- |
+| `tmux`      | `~/.tmux.conf` |
+| `claude`    | `~/.claude/commands/` |
+| `alacritty` | `~/.config/alacritty/slag.toml`, `slag-light.toml` |
+| `nvim`      | `~/.config/nvim/colors/slag.lua`, `slag-light.lua` |
+| `vscode`    | `~/.vscode/extensions/slag/` |
+
+## Slag theme
+
+`alacritty`, `nvim` and `vscode` all carry the same theme, in dark and light.
+They are generated from a single palette — the source lives in
+`~/@/1_Projects/misc/theme`, so edit the palette there and re-run `node
+package.mjs`, rather than editing these files by hand.
+
+After stowing:
+
+- **Alacritty** — add to `alacritty.toml`:
+  `general.import = ["~/.config/alacritty/slag.toml"]`
+- **Neovim** — `:colorscheme slag` (or `slag-light`)
+- **VS Code** — reload the window, then pick "Slag" in the theme picker

@@ -1,0 +1,27 @@
+{
+  "name": "slag",
+  "displayName": "Slag",
+  "description": "One gray, hard seams, and heat where it counts.",
+  "version": "0.1.0",
+  "publisher": "joeboylson",
+  "engines": {
+    "vscode": "^1.80.0"
+  },
+  "categories": [
+    "Themes"
+  ],
+  "contributes": {
+    "themes": [
+      {
+        "label": "Slag",
+        "uiTheme": "vs-dark",
+        "path": "./themes/slag-color-theme.json"
+      },
+      {
+        "label": "Slag Light",
+        "uiTheme": "vs",
+        "path": "./themes/slag-light-color-theme.json"
+      }
+    ]
+  }
+}
