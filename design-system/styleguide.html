@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Slag Design System</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="tokens.css">
+<style>
+  /* Page chrome for the styleguide itself — not part of the system. */
+  .site-header {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: var(--surface);
+    border-bottom: var(--hairline);
+  }
+  .site-header .container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-5);
+    padding-block: var(--space-4);
+  }
+  .swatches {
+    display: grid;
+    gap: var(--space-4);
+    grid-template-columns: repeat(auto-fill, minmax(9rem, 1fr));
+  }
+  .swatch { display: flex; flex-direction: column; gap: var(--space-2); }
+  .swatch .chip {
+    height: var(--space-7);
+    border: var(--hairline);
+    border-radius: var(--radius-md);
+  }
+  .swatch .name { font-family: var(--font-mono); font-size: var(--text-label); }
+  .swatch .hex { font-family: var(--font-mono); font-size: var(--text-label); color: var(--fg-muted); }
+  .spec-row {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-5);
+    padding-block: var(--space-4);
+    border-bottom: var(--hairline);
+  }
+  .spec-row .label { flex: 0 0 var(--space-8); }
+  .spec-row .px { margin-left: auto; }
+  .space-row { display: flex; align-items: center; gap: var(--space-5); padding-block: var(--space-2); }
+  .space-row .label { flex: 0 0 var(--space-8); }
+  .space-row .bar { height: var(--space-3); background: var(--accent); border-radius: var(--radius-sm); }
+  .row { display: flex; flex-wrap: wrap; gap: var(--space-4); align-items: center; }
+  .block { margin-top: var(--space-7); }
+  .block > h3 { margin-bottom: var(--space-5); }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container">
+    <span class="label">Slag / Design System</span>
+    <nav class="row">
+      <a class="btn btn--ghost" href="#color">Color</a>
+      <a class="btn btn--ghost" href="#type">Type</a>
+      <a class="btn btn--ghost" href="#space">Space</a>
+      <a class="btn btn--ghost" href="#components">Components</a>
+      <button class="btn btn--secondary" id="theme-toggle" type="button">Theme</button>
+    </nav>
+  </div>
+</header>
+
+<main>
+
+  <section class="section section--lg">
+    <div class="container">
+      <p class="label" style="margin-bottom: var(--space-5)">00 — Overview</p>
+      <h1 class="display">A quiet system built on the Slag palette.</h1>
+      <p class="lead" style="margin-top: var(--space-5)">
+        Geist and Geist Mono. Five type sizes. Every measurement is a Fibonacci
+        number in pixels, and the type steps use the ratio the series settles on.
+      </p>
+      <div class="row" style="margin-top: var(--space-7)">
+        <a class="btn" href="#components">See the pieces</a>
+        <a class="btn btn--secondary" href="tokens.css">Read tokens.css</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="color">
+    <div class="container">
+      <div class="section-head">
+        <p class="label">01 — Color</p>
+        <div>
+          <h2>Surfaces, text, and the terminal accents.</h2>
+          <p class="lead" style="margin-top: var(--space-4)">
+            Light is the default, dark follows the operating system, and
+            <code>data-theme</code> on <code>&lt;html&gt;</code> overrides both.
+          </p>
+        </div>
+      </div>
+
+      <div class="block">
+        <h3>Surface and text</h3>
+        <div class="swatches" data-swatches="surface,layer-1,layer-2,layer-3,border,fg,fg-muted,accent,on-accent,selection"></div>
+      </div>
+
+      <div class="block">
+        <h3>Accents</h3>
+        <div class="swatches" data-swatches="red,green,yellow,blue,magenta,cyan"></div>
+      </div>
+
+      <div class="block">
+        <h3>Meaning</h3>
+        <div class="swatches" data-swatches="success,warning,danger,info"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="type">
+    <div class="container">
+      <div class="section-head">
+        <p class="label">02 — Type</p>
+        <div>
+          <h2>Five sizes, two weights.</h2>
+          <p class="lead" style="margin-top: var(--space-4)">
+            13, 17, 21, and two that scale with the window. Headings are medium
+            weight, never bold. Anything smaller than a headline and larger than a
+            label does not exist.
+          </p>
+        </div>
+      </div>
+
+      <div class="block">
+        <div class="spec-row"><span class="label">display</span><span class="display">Ship the work</span><span class="label px" data-px="text-display"></span></div>
+        <div class="spec-row"><span class="label">title</span><h2>Ship the work</h2><span class="label px" data-px="text-title"></span></div>
+        <div class="spec-row"><span class="label">lead</span><span class="lead">Ship the work</span><span class="label px" data-px="text-lead"></span></div>
+        <div class="spec-row"><span class="label">body</span><span>Ship the work</span><span class="label px" data-px="text-body"></span></div>
+        <div class="spec-row"><span class="label">label</span><span class="label">Ship the work</span><span class="label px" data-px="text-label"></span></div>
+      </div>
+
+      <div class="block prose">
+        <p class="label">In context</p>
+        <h3 style="margin-top: var(--space-4)">Choosing a size</h3>
+        <p style="margin-top: var(--space-4)">
+          Most of the time the answer is <code>--text-body</code>. Reach past it
+          only when a piece of text has a different job to do: a page has one
+          thing to announce, a section has one thing to name, and a control has
+          one word on it. Everything else is prose, and prose is 17 pixels.
+        </p>
+        <p>
+          When something feels like it needs its own size, look again at what
+          it's doing. A caption is a <a href="#type">label</a>. A pull quote is a
+          lead. A card title is a heading at body size. The scale is short on
+          purpose, and almost every page fits inside it.
+        </p>
+        <h3 style="margin-top: var(--space-6)">When you're tempted anyway</h3>
+        <p style="margin-top: var(--space-4)">
+          Three moves cover nearly every case without adding a size:
+        </p>
+        <ul>
+          <li>Set it in <strong>medium weight</strong> to pull it forward.</li>
+          <li>Set it in <code>--fg-muted</code> to push it back.</li>
+          <li>Give it more space around it, which does more than any size change.</li>
+        </ul>
+        <p class="muted">
+          Muted text is the quiet register — footnotes, timestamps, the sentence
+          under a heading. It stays the same size, so the rhythm of the page
+          doesn't change.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="space">
+    <div class="container">
+      <div class="section-head">
+        <p class="label">03 — Space</p>
+        <div>
+          <h2>Fibonacci, in pixels.</h2>
+          <p class="lead" style="margin-top: var(--space-4)">
+            3, 5, 8, 13, 21, 34, 55, 89, 144, 233. The gaps widen the way they do
+            in the series, so small things sit close and big things get real room.
+          </p>
+        </div>
+      </div>
+
+      <div class="block" data-spaces="1,2,3,4,5,6,7,8,9,10"></div>
+
+      <div class="block">
+        <h3>Where the rest of it lands</h3>
+        <table>
+          <thead>
+            <tr><th>Token</th><th>Value</th><th>Use</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>--measure</code></td><td>610px</td><td>Reading column</td></tr>
+            <tr><td><code>--container</code></td><td>987px</td><td>Page frame</td></tr>
+            <tr><td><code>--section-y</code></td><td>55 → 89px</td><td>Section top and bottom</td></tr>
+            <tr><td><code>--section-y-lg</code></td><td>89 → 144px</td><td>Hero and closing sections</td></tr>
+            <tr><td><code>--radius-sm / md / lg</code></td><td>3 / 8 / 13px</td><td>Chips, inputs, cards</td></tr>
+            <tr><td><code>--dur-fast / normal</code></td><td>144 / 233ms</td><td>Hover, everything larger</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="components">
+    <div class="container">
+      <div class="section-head">
+        <p class="label">04 — Components</p>
+        <div>
+          <h2>A small set, borrowed everywhere.</h2>
+        </div>
+      </div>
+
+      <div class="block">
+        <h3>Buttons</h3>
+        <div class="row">
+          <button class="btn" type="button">Primary</button>
+          <button class="btn btn--secondary" type="button">Secondary</button>
+          <button class="btn btn--ghost" type="button">Ghost</button>
+        </div>
+      </div>
+
+      <div class="block">
+        <h3>Tags</h3>
+        <div class="row">
+          <span class="tag">Shipped</span>
+          <span class="tag">In review</span>
+          <span class="tag">Draft</span>
+        </div>
+      </div>
+
+      <div class="block">
+        <h3>Cards</h3>
+        <div class="grid">
+          <article class="card">
+            <p class="label">Retrieval</p>
+            <h3 style="margin-top: var(--space-3)">Search before you read</h3>
+            <p class="muted" style="margin-top: var(--space-3); margin-bottom: 0">
+              Cards use a hairline border and a 13 pixel radius. No shadows.
+            </p>
+          </article>
+          <article class="card">
+            <p class="label">Review</p>
+            <h3 style="margin-top: var(--space-3)">One finding at a time</h3>
+            <p class="muted" style="margin-top: var(--space-3); margin-bottom: 0">
+              The grid wraps on its own once a column drops below 233 pixels.
+            </p>
+          </article>
+          <article class="card">
+            <p class="label">Release</p>
+            <h3 style="margin-top: var(--space-3)">Tag it and ship</h3>
+            <p class="muted" style="margin-top: var(--space-3); margin-bottom: 0">
+              Every card shares the same padding, so rows line up on their own.
+            </p>
+          </article>
+        </div>
+      </div>
+
+      <div class="block" style="max-width: 21rem">
+        <h3>Input</h3>
+        <label class="label" for="demo-input">Email</label>
+        <input class="input" id="demo-input" style="margin-top: var(--space-2)" type="email" placeholder="you@example.com">
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <p class="label">Slag Design System — tokens.css is the source of truth.</p>
+    </div>
+  </section>
+
+</main>
+
+<script>
+  const read = (name) =>
+    getComputedStyle(document.documentElement).getPropertyValue('--' + name).trim();
+
+  const paintSwatches = () => {
+    document.querySelectorAll('[data-swatches]').forEach((host) => {
+      host.innerHTML = host.dataset.swatches.split(',').map((name) => `
+        <div class="swatch">
+          <div class="chip" style="background: var(--${name})"></div>
+          <span class="name">--${name}</span>
+          <span class="hex">${read(name)}</span>
+        </div>`).join('');
+    });
+  };
+
+  // Type sizes clamp against the viewport, so measure them rather than read the token.
+  const paintTypeSizes = () => {
+    document.querySelectorAll('[data-px]').forEach((el) => {
+      const probe = document.createElement('span');
+      probe.style.cssText = `position:absolute;visibility:hidden;font-size:var(--${el.dataset.px})`;
+      document.body.append(probe);
+      el.textContent = Math.round(parseFloat(getComputedStyle(probe).fontSize)) + 'px';
+      probe.remove();
+    });
+  };
+
+  document.querySelectorAll('[data-spaces]').forEach((host) => {
+    host.innerHTML = host.dataset.spaces.split(',').map((n) => `
+      <div class="space-row">
+        <span class="label">--space-${n}</span>
+        <div class="bar" style="width: var(--space-${n})"></div>
+        <span class="label">${Math.round(parseFloat(read('space-' + n)) * 16)}px</span>
+      </div>`).join('');
+  });
+
+  document.getElementById('theme-toggle').addEventListener('click', () => {
+    const dark = matchMedia('(prefers-color-scheme: dark)').matches;
+    const current = document.documentElement.dataset.theme || (dark ? 'dark' : 'light');
+    document.documentElement.dataset.theme = current === 'dark' ? 'light' : 'dark';
+    paintSwatches();
+  });
+
+  addEventListener('resize', paintTypeSizes);
+
+  paintSwatches();
+  paintTypeSizes();
+</script>
+
+</body>
+</html>

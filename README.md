@@ -32,6 +32,13 @@ stow -t ~ -R tmux   # restow after changes
 | `nvim`      | `~/.config/nvim/colors/slag.lua`, `slag-light.lua` |
 | `vscode`    | `~/.vscode/extensions/slag/` |
 
+`design-system/` is not a stow package — `~/.claude/skills` is already a symlink
+to another repo, so stow can't own anything under it. Link it in by hand:
+
+```bash
+ln -s "$PWD/design-system" ~/.claude/skills/slag-design-system
+```
+
 ## Slag theme
 
 `alacritty`, `nvim` and `vscode` all carry the same theme, in dark and light.
