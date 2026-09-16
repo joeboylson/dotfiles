@@ -28,6 +28,10 @@ jobs:
     permissions:
       contents: write
 
+    # Read here rather than on the step, so the skip check below can see it.
+    env:
+      OVSX_PAT: ${{ secrets.OVSX_PAT }}
+
     steps:
       - uses: actions/checkout@v4
 
@@ -63,11 +67,15 @@ jobs:
           VSCE_PAT: ${{ secrets.VSCE_PAT }}
         run: npx --yes @vscode/vsce@latest publish --packagePath "$GITHUB_WORKSPACE/slag.vsix"
 
+      # Optional on purpose: the Open VSX namespace isn't claimed yet, so a
+      # release ships to Microsoft alone until OVSX_PAT exists.
       - name: Publish to Open VSX
-        if: startsWith(github.ref, 'refs/tags/')
-        env:
-          OVSX_PAT: ${{ secrets.OVSX_PAT }}
+        if: ${{ startsWith(github.ref, 'refs/tags/') && env.OVSX_PAT != '' }}
         run: npx --yes ovsx@latest publish "$GITHUB_WORKSPACE/slag.vsix" -p "$OVSX_PAT"
+
+      - name: Note the skipped Open VSX release
+        if: ${{ startsWith(github.ref, 'refs/tags/') && env.OVSX_PAT == '' }}
+        run: echo "::warning::OVSX_PAT is unset — published to the VS Code Marketplace only."
 
       - name: Attach the .vsix to a release
         if: startsWith(github.ref, 'refs/tags/')

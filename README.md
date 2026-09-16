@@ -62,5 +62,6 @@ in the theme project's `package.mjs`, regenerate, commit, then tag.
 To test the packaging without shipping, run the workflow manually from the
 Actions tab; it builds the `.vsix` and attaches it as an artifact.
 
-Two repo secrets are required: `VSCE_PAT` (Azure DevOps, Marketplace > Manage)
-and `OVSX_PAT` (open-vsx.org).
+`VSCE_PAT` (Azure DevOps, Marketplace > Manage) is required. `OVSX_PAT`
+(open-vsx.org) is optional — without it the release goes to the VS Code
+Marketplace only, and Cursor and VSCodium users won't find the theme.
