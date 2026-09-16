@@ -31,12 +31,15 @@ stow -t ~ -R tmux   # restow after changes
 | `alacritty` | `~/.config/alacritty/slag.toml`, `slag-light.toml` |
 | `nvim`      | `~/.config/nvim/colors/slag.lua`, `slag-light.lua` |
 | `vscode`    | `~/.vscode/extensions/slag/` |
+| `claude-skills` | `~/.claude/skills/slag-design-system/` |
 
-`design-system/` is not a stow package — `~/.claude/skills` is already a symlink
-to another repo, so stow can't own anything under it. Link it in by hand:
+`claude-skills` is the one package that isn't stowed into `~`. `~/.claude/skills`
+is itself a symlink into another repo, and stow refuses to put anything inside a
+directory it doesn't own. So point stow straight at the skills directory instead
+of at home:
 
 ```bash
-ln -s "$PWD/design-system" ~/.claude/skills/slag-design-system
+stow -t ~/.claude/skills claude-skills      # and -D / -R the same way
 ```
 
 ## Slag theme
