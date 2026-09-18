@@ -1,0 +1,45 @@
+services:
+  # Live theme preview. Rebuilds the theme JSON whenever palette.mjs changes.
+  preview:
+    image: node:22-alpine
+    working_dir: /app
+    command: node serve.mjs
+    ports:
+      - "4321:4321"
+    volumes:
+      - .:/app
+
+  # Screenshot pass. Not a long-running service:
+  #   docker compose run --rm shots
+  #   docker compose run --rm shots explorer-open
+  shots:
+    build: .
+    environment:
+      SCREEN: "${SCREEN:-1600x1000x24}"
+      PALETTE: "${PALETTE:-./palette.mjs}"
+    volumes:
+      - ./theme:/theme:ro
+      - ./workspace:/workspace:ro
+      - ./shots:/shots
+      # Mounted rather than baked in, so editing a state doesn't need a rebuild.
+      - ./shoot.mjs:/app/shoot.mjs:ro
+      - ./states.mjs:/app/states.mjs:ro
+      - ./palette.mjs:/app/palette.mjs:ro
+      - ./presets:/app/presets:ro
+
+  # Alacritty screenshots, running the generated terminal + neovim themes:
+  #   docker compose run --rm term
+  #   docker compose run --rm term fastfetch
+  term:
+    build:
+      context: .
+      dockerfile: Dockerfile.term
+    environment:
+      NAME: "${NAME:-slag}"
+    volumes:
+      - ./dist/alacritty:/conf-alacritty:ro
+      - ./workspace:/ws:ro
+      - ./dist/nvim/colors:/conf/nvim:ro
+      - ./workspace/src:/src:ro
+      - ./shots:/shots
+      - ./term-shoot.sh:/app/term-shoot.sh:ro

@@ -1,0 +1,34 @@
+# Alacritty needs 0.13+ for TOML config, which jammy doesn't carry — hence
+# noble rather than reusing the Playwright image.
+FROM ubuntu:24.04
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+      alacritty neovim xvfb x11-apps x11-utils xdotool imagemagick \
+      libxkbcommon-x11-0 libxkbcommon0 \
+      wget unzip fontconfig ca-certificates git \
+ && rm -rf /var/lib/apt/lists/*
+
+# fastfetch isn't in noble's repos yet.
+# Their asset names use aarch64, not Debian's arm64.
+RUN ARCH=$(dpkg --print-architecture) \
+ && case "$ARCH" in arm64) A=aarch64 ;; amd64) A=amd64 ;; *) A="$ARCH" ;; esac \
+ && wget -q -O /tmp/ff.deb \
+      "https://github.com/fastfetch-cli/fastfetch/releases/download/2.68.1/fastfetch-linux-$A.deb" \
+ && apt-get update && apt-get install -y /tmp/ff.deb \
+ && rm -rf /tmp/ff.deb /var/lib/apt/lists/*
+
+# Same font the editor screenshots use.
+RUN mkdir -p /usr/share/fonts/truetype/code && cd /tmp \
+ && wget -q -O geist.zip https://github.com/vercel/geist-font/releases/download/v1.7.2/geist-font-v1.7.2.zip \
+ && unzip -qo geist.zip -d geist \
+ && find geist -iname 'GeistMono*.ttf' -exec cp {} /usr/share/fonts/truetype/code/ \; \
+ && fc-cache -f && rm -rf /tmp/geist /tmp/geist.zip
+
+WORKDIR /app
+COPY term-shoot.sh ./
+RUN chmod +x term-shoot.sh
+
+ENV DISPLAY=:99
+ENTRYPOINT ["./term-shoot.sh"]

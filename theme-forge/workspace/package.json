@@ -1,0 +1,14 @@
+{
+  "name": "sample-workspace",
+  "version": "1.0.0",
+  "description": "Files for theme screenshots",
+  "main": "src/app.ts",
+  "scripts": {
+    "build": "tsc -p .",
+    "test": "node --test"
+  },
+  "keywords": ["theme", "sample"],
+  "dependencies": {
+    "typescript": "^5.4.0"
+  }
+}

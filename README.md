@@ -13,7 +13,8 @@ Works on **macOS** and **Linux**.
 
 ## Usage
 
-Each top-level folder is a stow package that mirrors `~`. Run stow from the repo
+Each top-level folder is a stow package that mirrors `~`, with one exception:
+`theme-forge` is source, not dotfiles, so never stow it. Run stow from the repo
 root with the target set to your home directory (portable across macOS/Linux):
 
 ```bash
@@ -43,12 +44,24 @@ other repos can drop their own skills alongside these.
 | `nvim`      | `~/.config/nvim/colors/slag.lua`, `slag-light.lua` |
 | `vscode`    | `~/.vscode/extensions/slag/` |
 
+`theme-forge` is not in this table on purpose — it is the palette source that
+generates `alacritty`, `nvim` and `vscode`, and nothing in it belongs in `~`.
+
 ## Slag theme
 
 `alacritty`, `nvim` and `vscode` all carry the same theme, in dark and light.
-They are generated from a single palette — the source lives in
-`~/@/1_Projects/misc/theme`, so edit the palette there and re-run `node
-package.mjs`, rather than editing these files by hand.
+They are generated from a single palette in `theme-forge`, so never edit those
+files by hand — the next build overwrites them. To change the theme:
+
+```bash
+cd theme-forge
+$EDITOR presets/slag.mjs        # or palette.mjs, the default preset
+node package.mjs                # writes theme-forge/dist/dotfiles
+cp -R dist/dotfiles/* ..        # sync into the stow packages
+```
+
+`theme-forge/dist` and the other build output are gitignored; only the synced
+copies in the stow packages are tracked.
 
 After stowing:
 
@@ -67,8 +80,8 @@ git tag slag-v0.1.0 && git push origin slag-v0.1.0
 ```
 
 The tag only triggers the run — `vscode/.vscode/extensions/slag/package.json`
-holds the real version, and CI fails the release if the two disagree. Bump it
-in the theme project's `package.mjs`, regenerate, commit, then tag.
+holds the real version, and CI fails the release if the two disagree. Bump it in
+`theme-forge/package.mjs`, regenerate, sync, commit, then tag.
 
 To test the packaging without shipping, run the workflow manually from the
 Actions tab; it builds the `.vsix` and attaches it as an artifact.
