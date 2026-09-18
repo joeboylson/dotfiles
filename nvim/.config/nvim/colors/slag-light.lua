@@ -173,14 +173,15 @@ hl("GitSignsAdd", { fg = c.added })
 hl("GitSignsChange", { fg = c.modified })
 hl("GitSignsDelete", { fg = c.deleted })
 
--- Built-in terminal gets the same 16 colors as Alacritty.
+-- Built-in terminal gets the same 16 colors as Alacritty: 0-7 are the darker
+-- half of each gruvbox pair, 8-15 the syntax/status tone.
 vim.g.terminal_color_0 = "#2a2a2a"
-vim.g.terminal_color_1 = c.deleted
-vim.g.terminal_color_2 = c.added
-vim.g.terminal_color_3 = c.modified
-vim.g.terminal_color_4 = c.info
-vim.g.terminal_color_5 = c.number
-vim.g.terminal_color_6 = c.func
+vim.g.terminal_color_1 = "#9d0006"
+vim.g.terminal_color_2 = "#6b670d"
+vim.g.terminal_color_3 = "#b57614"
+vim.g.terminal_color_4 = "#076678"
+vim.g.terminal_color_5 = "#8f3f71"
+vim.g.terminal_color_6 = "#36684a"
 vim.g.terminal_color_7 = "#a8a8a8"
 vim.g.terminal_color_8 = "#666666"
 vim.g.terminal_color_9 = c.deleted

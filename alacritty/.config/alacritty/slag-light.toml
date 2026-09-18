@@ -41,7 +41,9 @@ background = "#b57614"
 foreground = "#2a2a2a"
 background = "#d4d4d4"
 
-# The same 16 colors the editor terminal uses.
+# The same 16 colors the editor terminal uses. Normal gets the darker half of
+# each gruvbox pair, bright gets the syntax/status tone, so the two blocks are
+# actually distinguishable — that split is what lets a program shade one hue.
 [colors.normal]
 black = "#2a2a2a"
 red = "#9d0006"
@@ -62,6 +64,8 @@ magenta = "#8f3f71"
 cyan = "#36684a"
 white = "#c4c4c4"
 
+# SGR 2. Alacritty only reaches for this block on an explicit dim, so it can
+# track normal without costing anything elsewhere.
 [colors.dim]
 black = "#2a2a2a"
 red = "#9d0006"
