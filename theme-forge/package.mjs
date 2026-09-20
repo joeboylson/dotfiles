@@ -36,6 +36,9 @@ await fsp.rm(OUT, { recursive: true, force: true });
 for (const d of [
   path.join(OUT, "alacritty/.config/alacritty"),
   path.join(OUT, "nvim/.config/nvim/colors"),
+  path.join(OUT, "polybar/.config/polybar"),
+  path.join(OUT, "rofi/.config/rofi/themes"),
+  path.join(OUT, "docs"),
   path.join(EXT_DIR, "themes"),
 ]) {
   await fsp.mkdir(d, { recursive: true });
@@ -70,6 +73,18 @@ for (const preset of SHIP) {
   await fsp.copyFile(
     path.join(ROOT, "dist/nvim/colors", `${id}.lua`),
     path.join(OUT, "nvim/.config/nvim/colors", `${id}.lua`),
+  );
+  await fsp.copyFile(
+    path.join(ROOT, "dist/polybar", `${id}.ini`),
+    path.join(OUT, "polybar/.config/polybar", `${id}.ini`),
+  );
+  await fsp.copyFile(
+    path.join(ROOT, "dist/swatches", `${id}.svg`),
+    path.join(OUT, "docs", `${id}.svg`),
+  );
+  await fsp.copyFile(
+    path.join(ROOT, "dist/rofi", `${id}.rasi`),
+    path.join(OUT, "rofi/.config/rofi/themes", `${id}.rasi`),
   );
 
   const themeFile = `${id}-color-theme.json`;
