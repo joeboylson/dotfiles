@@ -28,8 +28,9 @@ source as the themes, so it can't drift from them.
 
 ## Usage
 
-Each top-level folder is a stow package that mirrors `~`, with two exceptions:
-`theme-forge` is source and `docs` is generated README art, so never stow either.
+Each top-level folder is a stow package that mirrors `~`, with three exceptions:
+`theme-forge` is source, `docs` is generated README art and `scripts` holds helpers,
+so never stow any of them.
 Run stow from the repo root with the target set to your home directory (portable
 across macOS/Linux):
 
@@ -62,15 +63,18 @@ other repos can drop their own skills alongside these.
 | `polybar`   | `~/.config/polybar/` (config, scripts, `slag.ini`, `slag-light.ini`) |
 | `rofi`      | `~/.config/rofi/config.rasi`, `themes/slag.rasi`, `slag-light.rasi` |
 | `fontconfig`| `~/.config/fontconfig/conf.d/60-geist.conf` |
+| `zsh`       | `~/.zshrc`, `~/.zshenv` |
+| `xfce`      | eight XFCE settings channels under `~/.config/xfce4/xfconf/` (see below) |
+| `chrome`    | `~/.local/share/slag/chrome/slag/`, `slag-light/` (unpacked themes) |
 
 `theme-forge` is not in this table on purpose — it is the palette source that
-generates `alacritty`, `nvim`, `vscode`, and the color files in `polybar` and
-`rofi`, and nothing in it belongs in `~`.
+generates `alacritty`, `nvim`, `vscode`, `chrome`, the color files in `polybar`
+and `rofi`, and the palette sheet in `docs`. Nothing in it belongs in `~`.
 
 ## Slag theme
 
-`alacritty`, `nvim`, `vscode`, `polybar` and `rofi` all carry the same theme, in
-dark and light. The theme files are generated from a single palette in
+`alacritty`, `nvim`, `vscode`, `chrome`, `polybar` and `rofi` all carry the same
+theme, in dark and light. The theme files are generated from a single palette in
 `theme-forge`, so never edit them by hand (`polybar/.../slag*.ini`,
 `rofi/.../themes/slag*.rasi`) — the next build overwrites them. To change the theme:
 
@@ -90,6 +94,9 @@ After stowing:
   `general.import = ["~/.config/alacritty/slag.toml"]`
 - **Neovim** — `:colorscheme slag` (or `slag-light`)
 - **VS Code** — reload the window, then pick "Slag" in the theme picker
+- **Chrome** — open `chrome://extensions`, turn on Developer mode, choose
+  "Load unpacked" and pick `~/.local/share/slag/chrome/slag` (or `slag-light`).
+  Works in Chromium-family browsers too. Chrome keeps one theme per profile.
 - **Polybar** — `config.ini` already has `include-file = ~/.config/polybar/slag.ini`;
   point it at `slag-light.ini` for light, then `polybar-msg cmd restart`
 - **Rofi** — `config.rasi` already has `@theme "~/.config/rofi/themes/slag.rasi"`;
@@ -114,6 +121,43 @@ xfconf-query -c xsettings -p /Gtk/FontName -s "Geist 10"
 xfconf-query -c xsettings -p /Gtk/MonospaceFontName -s "Geist Mono 10"
 xfconf-query -c xfwm4 -p /general/title_font -s "Geist Bold 9"
 ```
+
+## Shell (zsh)
+
+`zsh/.zshrc` is the portable part: oh-my-zsh, plugins, version managers, no
+hard-coded home directory. Anything tied to one machine — project aliases, SDK
+paths, monitor layout — goes in `~/.zshrc.local`, which `.zshrc` sources last and
+which is not in this repo. For example:
+
+```zsh
+alias adb="$HOME/@/1_Projects/platform-tools/adb"
+export ANDROID_HOME="$HOME/android-sdk"
+```
+
+The plugins in `.zshrc` (`zsh-autosuggestions`, `zsh-syntax-highlighting`,
+`fast-syntax-highlighting`, `zsh-autocomplete`) are not bundled; clone them into
+`~/.oh-my-zsh/custom/plugins/` first or oh-my-zsh will complain.
+
+## XFCE
+
+`xfce` holds the settings channels that carry no machine detail: keyboard
+shortcuts, fonts and GTK theme (`xsettings`), window manager, notifications,
+keyboard, Thunar, MIME associations and power. Left out on purpose: `displays`
+and `xfce4-desktop` (monitor sizes, wallpaper paths) and `xfce4-panel` (launcher
+IDs and paths).
+
+XFCE saves a setting by replacing the file, a few seconds later, which swaps the
+stow symlink for a regular file and lets the repo go stale. Use the helper
+instead of bare stow:
+
+```bash
+scripts/xfce-sync apply     # link into ~, backing up what is there
+scripts/xfce-sync capture   # after changing settings: pull them back into the repo
+```
+
+The volume-up shortcut runs `~/.local/bin/volume-up`, which is not in this repo,
+and the polybar caffeine button needs `~/.local/bin/caffeine`. XFCE does not
+expand `~` or `$HOME` in shortcut commands, so that path stays absolute.
 
 ## Publishing the VS Code theme
 

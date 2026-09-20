@@ -39,6 +39,8 @@ for (const d of [
   path.join(OUT, "polybar/.config/polybar"),
   path.join(OUT, "rofi/.config/rofi/themes"),
   path.join(OUT, "docs"),
+  path.join(OUT, "chrome/.local/share/slag/chrome", "slag"),
+  path.join(OUT, "chrome/.local/share/slag/chrome", "slag-light"),
   path.join(EXT_DIR, "themes"),
 ]) {
   await fsp.mkdir(d, { recursive: true });
@@ -77,6 +79,10 @@ for (const preset of SHIP) {
   await fsp.copyFile(
     path.join(ROOT, "dist/polybar", `${id}.ini`),
     path.join(OUT, "polybar/.config/polybar", `${id}.ini`),
+  );
+  await fsp.copyFile(
+    path.join(ROOT, "dist/chrome", id, "manifest.json"),
+    path.join(OUT, "chrome/.local/share/slag/chrome", id, "manifest.json"),
   );
   await fsp.copyFile(
     path.join(ROOT, "dist/swatches", `${id}.svg`),

@@ -8,6 +8,7 @@ for (const target of [
   "build-polybar.mjs",
   "build-rofi.mjs",
   "build-swatches.mjs",
+  "build-chrome.mjs",
 ]) {
   const r = spawnSync(process.execPath, [target], { stdio: "inherit" });
   if (r.status !== 0) process.exit(r.status ?? 1);

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<channel name="xfce4-notifyd" version="1.0">
+  <property name="applications" type="empty">
+    <property name="known_applications" type="array">
+      <value type="string" value="google-chrome"/>
+      <value type="string" value="io.snapcraft.Store"/>
+      <value type="string" value="nm-applet"/>
+      <value type="string" value="org.gnome.Nautilus"/>
+      <value type="string" value="org.xfce.Thunar"/>
+      <value type="string" value="snapd-desktop-integration_snapd-desktop-integration"/>
+      <value type="string" value="spotify_spotify-1d7a9669-c3a8-4b6e-9202-9757b39ed9fe"/>
+      <value type="string" value="spotify_spotify-28ef948f-a512-4da8-8ec3-dbac49d16b24"/>
+      <value type="string" value="spotify_spotify-43468215-a466-45f3-a88f-44151fa00be2"/>
+      <value type="string" value="spotify_spotify-6293fe35-66d9-4421-bfa3-921655137bf9"/>
+      <value type="string" value="spotify_spotify-67e2842c-7664-4fed-8f3b-7291b6ba0fb2"/>
+      <value type="string" value="spotify_spotify-7f08189b-bfbd-4630-b6f0-0a9491cf25ce"/>
+      <value type="string" value="spotify_spotify-ab29901e-d612-4968-898d-16cc9411a020"/>
+      <value type="string" value="spotify_spotify-d5abde20-2ce0-4ac7-ab3c-317d39d44779"/>
+      <value type="string" value="System Config Printer Notification"/>
+      <value type="string" value="Xfce volume control"/>
+      <value type="string" value="Xfce4-notifyd settings"/>
+      <value type="string" value="xfce4-power-manager"/>
+      <value type="string" value="xfce4-settings-helper"/>
+    </property>
+  </property>
+  <property name="primary-monitor" type="uint" value="0"/>
+  <property name="notify-location" type="uint" value="2"/>
+  <property name="log-level" type="uint" value="0"/>
+  <property name="log-level-apps" type="uint" value="0"/>
+  <property name="do-not-disturb" type="bool" value="false"/>
+  <property name="theme" type="string" value="Smoke"/>
+  <property name="initial-opacity" type="double" value="0.800000"/>
+  <property name="do-slideout" type="bool" value="true"/>
+</channel>

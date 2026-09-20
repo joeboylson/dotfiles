@@ -1,0 +1,49 @@
+#!/usr/bin/env bash
+# XFCE's settings daemon saves a channel by writing a new file and renaming it
+# over the old one, which swaps a stow symlink for a regular file (a few seconds
+# after the setting changes). So the stowed xfce package drifts silently.
+#
+#   scripts/xfce-sync capture   copy replaced files back into the repo, re-link
+#   scripts/xfce-sync apply     link the repo's files into ~, backing up any
+#                               real file that is in the way
+#
+# The set of managed files is whatever xfce/.../*.xml holds; nothing else here
+# lists them.
+set -euo pipefail
+
+repo="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+rel=.config/xfce4/xfconf/xfce-perchannel-xml
+src="$repo/xfce/$rel"
+live="$HOME/$rel"
+backup="$HOME/.config/xfce4-xfconf-backup"
+
+case "${1:-}" in
+  capture)
+    for f in "$src"/*.xml; do
+      name=$(basename "$f")
+      if [ -f "$live/$name" ] && [ ! -L "$live/$name" ]; then
+        cmp -s "$live/$name" "$f" || echo "changed: $name"
+        cp "$live/$name" "$f"
+        rm "$live/$name"
+      fi
+    done
+    stow -R -d "$repo" -t "$HOME" xfce
+    git -C "$repo" status --short xfce
+    ;;
+  apply)
+    mkdir -p "$backup"
+    for f in "$src"/*.xml; do
+      name=$(basename "$f")
+      if [ -e "$live/$name" ] && [ ! -L "$live/$name" ]; then
+        cp -a "$live/$name" "$backup/"
+        rm "$live/$name"
+      fi
+    done
+    stow -R -d "$repo" -t "$HOME" xfce
+    echo "linked. Log out and back in so running XFCE components re-read them."
+    ;;
+  *)
+    echo "usage: scripts/xfce-sync capture|apply" >&2
+    exit 2
+    ;;
+esac

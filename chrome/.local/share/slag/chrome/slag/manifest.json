@@ -1,0 +1,30 @@
+{
+  "manifest_version": 3,
+  "name": "Slag",
+  "version": "0.1.0",
+  "description": "One gray, hard seams, and heat where it counts.",
+  "theme": {
+    "colors": {
+      "frame": [40, 40, 40],
+      "frame_inactive": [40, 40, 40],
+      "frame_incognito": [40, 40, 40],
+      "frame_incognito_inactive": [40, 40, 40],
+      "toolbar": [59, 59, 59],
+      "tab_text": [228, 228, 228],
+      "tab_background_text": [154, 154, 154],
+      "bookmark_text": [228, 228, 228],
+      "omnibox_background": [40, 40, 40],
+      "omnibox_text": [228, 228, 228],
+      "ntp_background": [40, 40, 40],
+      "ntp_text": [228, 228, 228],
+      "ntp_link": [250, 189, 47],
+      "ntp_section": [57, 57, 57],
+      "ntp_section_text": [228, 228, 228],
+      "ntp_section_link": [250, 189, 47],
+      "button_background": [0, 0, 0, 0]
+    },
+    "tints": {
+      "buttons": [-1, -1, 0.85]
+    }
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "manifest_version": 3,
+  "name": "Slag Light",
+  "version": "0.1.0",
+  "description": "One gray, hard seams, and heat where it counts.",
+  "theme": {
+    "colors": {
+      "frame": [240, 240, 240],
+      "frame_inactive": [240, 240, 240],
+      "frame_incognito": [240, 240, 240],
+      "frame_incognito_inactive": [240, 240, 240],
+      "toolbar": [220, 220, 220],
+      "tab_text": [42, 42, 42],
+      "tab_background_text": [102, 102, 102],
+      "bookmark_text": [42, 42, 42],
+      "omnibox_background": [240, 240, 240],
+      "omnibox_text": [42, 42, 42],
+      "ntp_background": [240, 240, 240],
+      "ntp_text": [42, 42, 42],
+      "ntp_link": [181, 118, 20],
+      "ntp_section": [217, 217, 217],
+      "ntp_section_text": [42, 42, 42],
+      "ntp_section_link": [181, 118, 20],
+      "button_background": [0, 0, 0, 0]
+    }
+  }
+}
