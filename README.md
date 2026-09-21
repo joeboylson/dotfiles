@@ -56,7 +56,7 @@ other repos can drop their own skills alongside these.
 | Package     | Links |
 | ----------- | ----- |
 | `tmux`      | `~/.tmux.conf` |
-| `claude`    | `~/.claude/commands/`, `~/.claude/skills/slag-design-system/` |
+| `claude`    | `~/.claude/commands/`, `~/.claude/skills/slag-design-system/`, `~/.claude/statusline.sh` |
 | `alacritty` | `~/.config/alacritty/slag.toml`, `slag-light.toml` |
 | `nvim`      | `~/.config/nvim/colors/slag.lua`, `slag-light.lua` |
 | `vscode`    | `~/.vscode/extensions/slag/` |
@@ -66,6 +66,25 @@ other repos can drop their own skills alongside these.
 | `zsh`       | `~/.zshrc`, `~/.zshenv` |
 | `xfce`      | eight XFCE settings channels under `~/.config/xfce4/xfconf/` (see below) |
 | `chrome`    | `~/.local/share/slag/chrome/slag/`, `slag-light/` (unpacked themes) |
+
+### Claude Code status line
+
+`claude` ships `statusline.sh`, which draws the model id, the current directory,
+and three usage meters — context window, the 5-hour rate limit with its reset
+time, and the weekly percentage. Each bar turns yellow at 70% and red at 90%.
+
+```
+claude-opus-5[1m] | DIR: joeboylson_dotfiles | CONTEXT: ▓▓▓░░░░░░░ 31% | 5H ▓▓░░░░░░░░ 22% (-> 3:45pm) | WEEK: 14%
+```
+
+Settings are not stowed, so point Claude Code at it yourself — add to
+`~/.claude/settings.json`:
+
+```json
+"statusLine": { "type": "command", "command": "~/.claude/statusline.sh" }
+```
+
+It needs `jq`.
 
 `theme-forge` is not in this table on purpose — it is the palette source that
 generates `alacritty`, `nvim`, `vscode`, `chrome`, the color files in `polybar`
