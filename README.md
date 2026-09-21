@@ -29,8 +29,8 @@ source as the themes, so it can't drift from them.
 ## Usage
 
 Each top-level folder is a stow package that mirrors `~`, with three exceptions:
-`theme-forge` is source, `docs` is generated README art and `scripts` holds helpers,
-so never stow any of them.
+`theme-forge` is source, `docs` is generated README art and writeups, and
+`scripts` holds helpers, so never stow any of them.
 Run stow from the repo root with the target set to your home directory (portable
 across macOS/Linux):
 
@@ -89,6 +89,15 @@ It needs `jq`.
 `theme-forge` is not in this table on purpose — it is the palette source that
 generates `alacritty`, `nvim`, `vscode`, `chrome`, the color files in `polybar`
 and `rofi`, and the palette sheet in `docs`. Nothing in it belongs in `~`.
+
+## Docs
+
+`docs` also holds writeups of setups worth reusing, whose code lives outside
+this repo:
+
+| Doc | About |
+| --- | --- |
+| [`docs/claude-api.md`](docs/claude-api.md) | An always-on local HTTP API in front of Claude Code, so services and containers can ask Claude without an API key |
 
 ## Slag theme
 
