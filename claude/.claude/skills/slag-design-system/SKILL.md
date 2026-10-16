@@ -1,6 +1,6 @@
 ---
 name: slag-design-system
-description: Joe's house visual style for anything with a user interface — web pages, artifacts, dashboards, mockups, docs sites, READMEs rendered as HTML, app screens. Slag palette, Geist and Geist Mono, five type sizes, Fibonacci spacing, and the quiet editorial layout of cognition.com. Use whenever you are about to write HTML, CSS, JSX, or Tailwind that a person will look at, and whenever Joe says "use my design system", "house style", "slag style", or "make it look like mine".
+description: Joe's house visual style for anything with a user interface — web pages, artifacts, dashboards, mockups, docs sites, READMEs rendered as HTML, app screens, dev tools. Slag palette, Geist and Geist Mono, five type sizes, Fibonacci spacing, in two modes — editorial (the quiet layout of cognition.com, for decks, explainers, docs) and workbench (dense and VS Code-like, for apps, dashboards, internal and dev tools). Use whenever you are about to write HTML, CSS, JSX, or Tailwind that a person will look at, and whenever Joe says "use my design system", "house style", "slag style", or "make it look like mine".
 ---
 
 # Slag Design System
@@ -9,6 +9,21 @@ The source of truth is `tokens.css`, sitting next to this file at
 `~/.claude/skills/slag-design-system/tokens.css`. Read it before you write any
 styles. `styleguide.html` in the same folder shows every token rendered — open
 it in a browser to check a decision.
+
+## Pick a mode first
+
+The palette, fonts, number rule, hairlines, and one-accent rule are shared. Only
+density and layout change.
+
+| Mode | For | Files |
+| --- | --- | --- |
+| **Editorial** (default) | Slides, explainers, docs, reports, landing pages — things read top to bottom | `tokens.css`, `styleguide.html` |
+| **Workbench** | Apps, dashboards, admin panels, dev and internal tools — things people work in | `tokens.css` + `workbench.css`, `workbench.html` |
+
+If the page has a sidebar, tabs, panes, or a table people scan all day, it's
+workbench. If someone scrolls it once to understand something, it's editorial.
+Everything below this section describes editorial; workbench overrides are in
+**Workbench mode** at the end.
 
 ## How to use it
 
@@ -108,6 +123,54 @@ forces one. Anything you build has to look right in both — check it.
 Restrained and editorial — a lot of empty space, hairline seams, one accent
 doing one job, and type that gets out of the way. If it looks busy, delete
 something rather than styling it.
+
+## Workbench mode
+
+For apps and tools. Load `workbench.css` **after** `tokens.css` and put
+`data-mode="workbench"` on `<html>`. Read `workbench.css` before writing styles;
+`workbench.html` is a working editor shell (explorer, tabs, code, panel, status
+bar, command palette, and a Components tab) to copy patterns from.
+
+```html
+<html lang="en" data-mode="workbench">
+<link rel="stylesheet" href="tokens.css">
+<link rel="stylesheet" href="workbench.css">
+```
+
+What changes from editorial:
+
+- **Type drops a register.** Same five token names, smaller values: label 11,
+  body 13, lead 17, title 21, display 34 (empty states only). Code is 13px on a
+  21px line (13 × 1.618). Pane headers use `.label` — the `EXPLORER` look.
+- **Spacing stays at the small end** — 3, 5, 8, 13 for almost everything, 21 at
+  most between groups. No `--section-y`, no hero.
+- **Full-bleed panes, no page frame.** Drop `.container`, `.section`, `.prose`,
+  `.section-head`. Use the shell: `.wb` grid with `.wb-titlebar`,
+  `.wb-activity`, `.wb-sidebar`, `.wb-main` (`.tabs`, `.wb-editor`, `.wb-panel`),
+  `.wb-status`.
+- **Shell sizes are tokens, still Fibonacci:** `--row` 21 (tree rows, status
+  bar), `--bar` 34 (title bar, tab bar), `--activity` 55, `--sidebar` 233,
+  `--panel` 233.
+- **Two surfaces are allowed:** `--surface` for the working area (editor,
+  panel), `--layer-1` for chrome (title bar, activity bar, sidebar, status bar,
+  inactive tabs). Hover rows use `--layer-2`; the selected row uses
+  `--selection`. Still no shadows — overlays get a hairline in `--fg-muted`.
+- **3px corners everywhere** (5px on cards, toasts, overlays). No pills — the
+  file remaps `--radius-full` to 3px so `.btn` and `.tag` square off.
+- **Accent marks what's active or focused:** the active tab's top line, the
+  active activity item's left bar, the focus ring. Buttons don't turn accent on
+  hover in this mode.
+- **Mono carries data:** paths, IDs, counts, times, table headers, the status
+  bar.
+- **Motion is quicker:** 89ms hover, 144ms for anything larger.
+- Extra pieces in `workbench.css`: `.kbd`, `.count`, `.dot` (color it with
+  `color: var(--success)` etc.), `.icon`, `.tree`, `.tab`, `.breadcrumbs`,
+  `.code` with `.tok-*` syntax colors, `.panel-tabs`, `.problems`, `.term`,
+  `.palette`, `.btn--danger`.
+- Under 768px the sidebar hides and the status bar drops its extras.
+
+The feel: a calm editor. Dense but not cramped, hairlines between every pane,
+color only where it means something (syntax, status, the one accent).
 
 ## Tailwind
 

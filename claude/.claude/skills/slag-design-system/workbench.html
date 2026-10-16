@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en" data-mode="workbench">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Slag Workbench</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="tokens.css">
+<link rel="stylesheet" href="workbench.css">
+<style>
+  /* Demo-only: the component preview tab. */
+  .preview { padding: var(--space-5) var(--space-6) var(--space-7); display: grid; gap: var(--space-6); max-width: 55rem; }
+  .preview h1 { font-size: var(--text-title); }
+  .group { display: grid; gap: var(--space-3); }
+  .group + .group { padding-top: var(--space-5); border-top: var(--hairline); }
+  .row { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3); }
+  .field { display: grid; gap: var(--space-2); max-width: 21rem; }
+  .field .muted { font-size: var(--text-label); }
+  .setting { display: grid; grid-template-columns: 1fr 13rem; gap: var(--space-4); align-items: center; padding-block: var(--space-3); border-bottom: var(--hairline); }
+  .setting p { color: var(--fg-muted); }
+  .check { display: flex; align-items: center; gap: var(--space-3); }
+  .check input { accent-color: var(--fg); margin: 0; }
+  .progress { height: var(--space-1); background: var(--layer-2); border-radius: var(--radius-sm); overflow: hidden; }
+  .progress > div { height: 100%; width: 62%; background: var(--fg-muted); }
+  .toast { display: flex; gap: var(--space-3); align-items: start; padding: var(--space-3) var(--space-4); max-width: 34rem; border: var(--hairline); border-radius: var(--radius-lg); background: var(--layer-1); }
+  .toast .grow { flex: 1; }
+  .toast .row { margin-top: var(--space-3); }
+  .empty { display: grid; gap: var(--space-3); padding: var(--space-5) var(--space-4); color: var(--fg-muted); }
+  .pane-body { padding: 0 var(--space-4) var(--space-4); display: grid; gap: var(--space-3); }
+  select.input { appearance: none; cursor: pointer; }
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-files" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="6"/><path d="m20 20-4.5-4.5"/></symbol>
+    <symbol id="i-branch" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="6" cy="5" r="2"/><circle cx="6" cy="19" r="2"/><circle cx="18" cy="7" r="2"/><path d="M6 7v10M18 9c0 5-6 4-12 8"/></symbol>
+    <symbol id="i-blocks" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="4" y="4" width="7" height="7" rx="1"/><rect x="13" y="13" width="7" height="7" rx="1"/><rect x="4" y="13" width="7" height="7" rx="1"/><path d="m15 4 5 5-5 5"/></symbol>
+    <symbol id="i-gear" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M5.6 18.4l2.1-2.1M16.3 7.7l2.1-2.1"/></symbol>
+    <symbol id="i-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="m9 6 6 6-6 6"/></symbol>
+    <symbol id="i-chev-d" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="m6 9 6 6 6-6"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M7 7l10 10M17 7 7 17"/></symbol>
+    <symbol id="i-err" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="8"/><path d="m9 9 6 6M15 9l-6 6"/></symbol>
+    <symbol id="i-warn" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 4 3 20h18z"/><path d="M12 10v4M12 17v.5"/></symbol>
+    <symbol id="i-info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="8"/><path d="M12 11v5M12 8v.5"/></symbol>
+    <symbol id="i-bell" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15z"/><path d="M10 20a2 2 0 0 0 4 0"/></symbol>
+    <symbol id="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M19 14.5A7.5 7.5 0 0 1 9.5 5a7.5 7.5 0 1 0 9.5 9.5z"/></symbol>
+    <symbol id="i-eye" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12z"/><circle cx="12" cy="12" r="2.5"/></symbol>
+  </defs>
+</svg>
+
+<div class="wb">
+
+  <header class="wb-titlebar">
+    <span class="label">Slag / Workbench</span>
+    <button class="wb-search" id="open-palette" type="button">
+      <svg class="icon--sm"><use href="#i-search"/></svg>
+      slag-app
+      <span class="kbd">⌘⇧P</span>
+    </button>
+    <span></span>
+  </header>
+
+  <nav class="wb-activity" aria-label="Views">
+    <button type="button" data-view="explorer" aria-pressed="true" title="Explorer"><svg class="icon"><use href="#i-files"/></svg></button>
+    <button type="button" data-view="search" aria-pressed="false" title="Search"><svg class="icon"><use href="#i-search"/></svg></button>
+    <button type="button" data-view="scm" aria-pressed="false" title="Source control"><svg class="icon"><use href="#i-branch"/></svg></button>
+    <button type="button" data-view="ext" aria-pressed="false" title="Extensions"><svg class="icon"><use href="#i-blocks"/></svg></button>
+    <div class="spacer"></div>
+    <button type="button" data-open="components" title="Settings"><svg class="icon"><use href="#i-gear"/></svg></button>
+  </nav>
+
+  <aside class="wb-sidebar">
+    <div class="pane-head"><span class="label" id="view-title">Explorer</span></div>
+    <div id="view-body"></div>
+  </aside>
+
+  <main class="wb-main">
+    <div class="tabs" role="tablist" id="tabs"></div>
+    <div class="wb-editor" id="editor"></div>
+    <section class="wb-panel">
+      <div class="panel-tabs" role="tablist">
+        <button type="button" role="tab" data-panel="problems" aria-selected="false">Problems <span class="count">2</span></button>
+        <button type="button" role="tab" data-panel="output" aria-selected="false">Output</button>
+        <button type="button" role="tab" data-panel="terminal" aria-selected="true">Terminal</button>
+      </div>
+      <div class="panel-body" id="panel"></div>
+    </section>
+  </main>
+
+  <footer class="wb-status">
+    <span><svg class="icon--sm"><use href="#i-branch"/></svg>main</span>
+    <button type="button" data-panel-jump="problems"><svg class="icon--sm" style="color: var(--danger)"><use href="#i-err"/></svg>1 <svg class="icon--sm" style="color: var(--warning)"><use href="#i-warn"/></svg>1</button>
+    <div class="spacer"></div>
+    <span class="hide-sm" id="cursor">Ln 12, Col 5</span>
+    <span class="hide-sm">UTF-8</span>
+    <span class="hide-sm" id="lang">TypeScript JSX</span>
+    <button type="button" id="theme-toggle"><svg class="icon--sm"><use href="#i-moon"/></svg>Theme</button>
+    <button type="button" title="Notifications"><svg class="icon--sm"><use href="#i-bell"/></svg></button>
+  </footer>
+
+</div>
+
+<div class="palette-backdrop" id="palette-backdrop">
+  <div class="palette" role="dialog" aria-label="Command palette">
+    <input class="input" id="palette-input" placeholder="Type a command" autocomplete="off">
+    <ul id="palette-list" role="listbox"></ul>
+  </div>
+</div>
+
+<script>
+const FILES = {
+  "src/components/Button.tsx": { lang: "TypeScript JSX", cursor: 12, text:
+`import { forwardRef, type ButtonHTMLAttributes } from "react";
+import { cx } from "../lib/cx";
+
+type Variant = "primary" | "secondary" | "ghost";
+
+interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
+  variant?: Variant;
+}
+
+// One component, three looks. Everything else comes from tokens.
+export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
+  function Button({ variant = "primary", className, ...rest }, ref) {
+    return (
+      <button
+        ref={ref}
+        className={cx("btn", variant !== "primary" && \`btn--\${variant}\`, className)}
+        {...rest}
+      />
+    );
+  },
+);` },
+  "src/styles/workbench.css": { lang: "CSS", cursor: 3, text:
+`/* Slag Workbench — the dense mode, for apps and dev tools. */
+:root[data-mode="workbench"] {
+  --text-label:   0.6875rem;  /* 11 — pane headers, badges */
+  --text-body:    0.8125rem;  /* 13 — all UI and code */
+  --text-lead:    1.0625rem;  /* 17 — panel titles, rare */
+  --text-title:   1.3125rem;  /* 21 — a settings page title */
+  --text-display: 2.125rem;   /* 34 — empty states only */
+
+  --radius-md:   3px;
+  --radius-lg:   5px;
+  --radius-full: 3px;
+
+  --dur-fast:   89ms;
+  --dur-normal: 144ms;
+
+  --row:      1.3125rem;  /*  21 — tree rows, status bar */
+  --bar:      2.125rem;   /*  34 — title bar, tab bar */
+  --activity: 3.4375rem;  /*  55 — activity bar width */
+  --sidebar:  14.5625rem; /* 233 — sidebar width */
+  --panel:    14.5625rem; /* 233 — bottom panel height */
+}` },
+  "src/styles/tokens.css": { lang: "CSS", cursor: 2, text:
+`/* Shared with editorial mode — palette, fonts, Fibonacci scale. */
+:root {
+  --surface:  #f0f0f0;
+  --layer-1:  #e4e4e4;
+  --fg:       #2a2a2a;
+  --fg-muted: #666666;
+  --accent:   #b57614;
+
+  --space-1: 0.1875rem;  /*  3 */
+  --space-2: 0.3125rem;  /*  5 */
+  --space-3: 0.5rem;     /*  8 */
+  --space-4: 0.8125rem;  /* 13 */
+  --space-5: 1.3125rem;  /* 21 */
+}` },
+  "package.json": { lang: "JSON", cursor: 4, text:
+`{
+  "name": "slag-app",
+  "version": "0.1.0",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build"
+  },
+  "dependencies": {
+    "react": "^19.1.0"
+  }
+}` },
+};
+
+const TREE = [
+  { name: "src", dir: true, depth: 0 },
+  { name: "components", dir: true, depth: 1 },
+  { name: "Button.tsx", path: "src/components/Button.tsx", depth: 2, badge: "2" },
+  { name: "Input.tsx", depth: 2 },
+  { name: "lib", dir: true, depth: 1 },
+  { name: "cx.ts", depth: 2 },
+  { name: "styles", dir: true, depth: 1 },
+  { name: "tokens.css", path: "src/styles/tokens.css", depth: 2 },
+  { name: "workbench.css", path: "src/styles/workbench.css", depth: 2, badge: "M" },
+  { name: "package.json", path: "package.json", depth: 0 },
+  { name: "vite.config.ts", depth: 0 },
+];
+
+const esc = (s) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+
+const KEYWORDS = "import|from|export|const|let|return|function|type|interface|extends|if|else";
+const TOKEN = new RegExp(
+  [
+    String.raw`(\/\*.*?\*\/|\/\/.*$)`,                  // comment
+    String.raw`("(?:[^"\\]|\\.)*"|\`[^\`]*\`)`,          // string
+    String.raw`(&lt;\/?[A-Za-z][\w.]*)`,                // tag
+    String.raw`\b(${KEYWORDS})\b`,                      // keyword
+    String.raw`(--[\w-]+)`,                             // custom property
+    String.raw`(#[0-9a-f]{6}\b|\b\d+(?:\.\d+)?(?:px|rem|ms|em|%)?)`, // number
+    String.raw`\b([A-Z]\w*)\b`,                         // type
+    String.raw`\b([a-z_]\w*)(?=\()`,                    // function
+  ].join("|"),
+  "g",
+);
+const CLASSES = ["c", "s", "k", "k", "p", "n", "t", "f"];
+
+const highlight = (line) =>
+  esc(line).replace(TOKEN, (m, ...groups) => {
+    const i = groups.slice(0, CLASSES.length).findIndex((g) => g !== undefined);
+    return i < 0 ? m : `<span class="tok-${CLASSES[i]}">${m}</span>`;
+  });
+
+const icon = (id, cls = "icon--sm", style = "") => `<svg class="${cls}" style="${style}"><use href="#i-${id}"/></svg>`;
+
+const state = { open: ["src/components/Button.tsx", "src/styles/workbench.css", "components"], active: "src/components/Button.tsx", panel: "terminal", view: "explorer" };
+
+const tabLabel = (key) => key === "components" ? "Components" : key.split("/").pop();
+
+function renderTabs() {
+  document.getElementById("tabs").innerHTML = state.open.map((key) => `
+    <button class="tab" role="tab" data-tab="${key}" aria-selected="${key === state.active}">
+      ${icon(key === "components" ? "eye" : "files")}
+      ${tabLabel(key)}
+      <span data-close="${key}" title="Close">${icon("x")}</span>
+    </button>`).join("");
+}
+
+function renderEditor() {
+  const el = document.getElementById("editor");
+  if (!state.active) {
+    el.innerHTML = `<div class="empty" style="place-items:center; height:100%"><p class="display" style="font-size: var(--text-display)">Slag</p><p><span class="kbd">⌘⇧P</span> to show all commands</p></div>`;
+    return;
+  }
+  if (state.active === "components") {
+    el.innerHTML = document.getElementById("components-tpl").innerHTML;
+    document.getElementById("lang").textContent = "Preview";
+    document.getElementById("cursor").textContent = "";
+    return;
+  }
+  const file = FILES[state.active];
+  const crumbs = state.active.split("/").map((p) => `<span>${p}</span>`).join(icon("chev"));
+  const lines = file.text.split("\n");
+  el.innerHTML = `<div class="breadcrumbs">${crumbs}</div><div class="code">${lines.map((l, i) => {
+    const cur = i + 1 === file.cursor ? " current" : "";
+    return `<div class="ln${cur}">${i + 1}</div><div class="line${cur}">${highlight(l) || " "}</div>`;
+  }).join("")}</div>`;
+  document.getElementById("lang").textContent = file.lang;
+  document.getElementById("cursor").textContent = `Ln ${file.cursor}, Col 5`;
+}
+
+function renderView() {
+  const title = { explorer: "Explorer", search: "Search", scm: "Source control", ext: "Extensions" }[state.view];
+  document.getElementById("view-title").textContent = title;
+  const body = document.getElementById("view-body");
+  if (state.view === "explorer") {
+    body.innerHTML = `<ul class="tree" role="tree">${TREE.map((n) => `
+      <li><button type="button" style="--depth:${n.depth}" ${n.path ? `data-open="${n.path}"` : ""} aria-selected="${n.path === state.active}">
+        ${n.dir ? icon("chev-d") : `<span class="icon--sm"></span>`}
+        <span>${n.name}</span>
+        ${n.badge ? `<span class="muted" style="color: ${n.badge === "M" ? "var(--warning)" : "var(--danger)"}">${n.badge}</span>` : ""}
+      </button></li>`).join("")}</ul>`;
+  } else if (state.view === "search") {
+    body.innerHTML = `<div class="pane-body"><input class="input" placeholder="Search" autofocus><input class="input" placeholder="Replace"><p class="muted">No results yet.</p></div>`;
+  } else if (state.view === "scm") {
+    body.innerHTML = `<div class="pane-body"><input class="input" placeholder="Message (⌘↵ to commit)"><button class="btn" type="button" style="justify-content:center">Commit</button></div>
+      <div class="pane-head"><span class="label">Changes</span><span class="count">1</span></div>
+      <ul class="tree"><li><button type="button" data-open="src/styles/workbench.css">${icon("files")}<span>workbench.css</span><span class="muted" style="color: var(--warning)">M</span></button></li></ul>`;
+  } else {
+    body.innerHTML = `<div class="empty"><p>Nothing installed.</p><p>This view is here to show an empty pane.</p></div>`;
+  }
+}
+
+const PANELS = {
+  terminal: `<div class="term"><span class="tok-f">~/slag-app</span> <span class="muted">main</span> $ npm run dev
+
+<span class="muted">&gt; slag-app@0.1.0 dev
+&gt; vite</span>
+
+  <span class="tok-s">VITE v6.2.0</span>  ready in <span class="tok-n">233</span> ms
+
+  <span class="tok-s">➜</span>  Local:   <span class="tok-f">http://localhost:5173/</span>
+  <span class="muted">➜  Network: use --host to expose</span>
+
+<span class="muted">12:04:21</span> <span class="tok-p">[vite]</span> hmr update /src/components/Button.tsx
+<span class="muted">12:04:34</span> <span class="tok-p">[vite]</span> <span class="tok-k">error</span> Type 'string' is not assignable to type 'Variant'.</div>`,
+  problems: `<ul class="problems">
+    <li>${icon("err", "icon--sm", "color: var(--danger)")}<span>Type 'string' is not assignable to type 'Variant'.</span><span class="muted">Button.tsx [16, 44]</span></li>
+    <li>${icon("warn", "icon--sm", "color: var(--warning)")}<span>'className' is possibly undefined.</span><span class="muted">Button.tsx [12, 38]</span></li>
+  </ul>`,
+  output: `<div class="term muted">[info] Extension host started in 89ms
+[info] TypeScript server ready
+[info] Watching 13 files</div>`,
+};
+
+function renderPanel() {
+  document.querySelectorAll("[data-panel]").forEach((b) => b.setAttribute("aria-selected", b.dataset.panel === state.panel));
+  document.getElementById("panel").innerHTML = PANELS[state.panel];
+}
+
+function openTab(key) {
+  if (!state.open.includes(key)) state.open.push(key);
+  state.active = key;
+  renderTabs(); renderEditor(); renderView();
+}
+
+function closeTab(key) {
+  const i = state.open.indexOf(key);
+  state.open.splice(i, 1);
+  if (state.active === key) state.active = state.open[Math.min(i, state.open.length - 1)] || null;
+  renderTabs(); renderEditor(); renderView();
+}
+
+document.addEventListener("click", (e) => {
+  const close = e.target.closest("[data-close]");
+  if (close) { e.stopPropagation(); return closeTab(close.dataset.close); }
+  const tab = e.target.closest("[data-tab]");
+  if (tab) { state.active = tab.dataset.tab; renderTabs(); renderEditor(); renderView(); return; }
+  const open = e.target.closest("[data-open]");
+  if (open) return openTab(open.dataset.open);
+  const view = e.target.closest("[data-view]");
+  if (view) {
+    state.view = view.dataset.view;
+    document.querySelectorAll("[data-view]").forEach((b) => b.setAttribute("aria-pressed", b === view));
+    return renderView();
+  }
+  const panel = e.target.closest("[data-panel], [data-panel-jump]");
+  if (panel) { state.panel = panel.dataset.panel || panel.dataset.panelJump; return renderPanel(); }
+});
+
+function toggleTheme() {
+  const dark = matchMedia("(prefers-color-scheme: dark)").matches;
+  const current = document.documentElement.dataset.theme || (dark ? "dark" : "light");
+  document.documentElement.dataset.theme = current === "dark" ? "light" : "dark";
+}
+document.getElementById("theme-toggle").addEventListener("click", toggleTheme);
+
+/* ---- Command palette ---- */
+const COMMANDS = [
+  { name: "Preferences: Toggle Theme", keys: "⌘K ⌘T", run: toggleTheme },
+  { name: "View: Open Component Preview", keys: "", run: () => openTab("components") },
+  { name: "Go to File: Button.tsx", keys: "⌘P", run: () => openTab("src/components/Button.tsx") },
+  { name: "Go to File: workbench.css", keys: "⌘P", run: () => openTab("src/styles/workbench.css") },
+  { name: "Go to File: tokens.css", keys: "⌘P", run: () => openTab("src/styles/tokens.css") },
+  { name: "Go to File: package.json", keys: "⌘P", run: () => openTab("package.json") },
+  { name: "View: Show Problems", keys: "⌘⇧M", run: () => { state.panel = "problems"; renderPanel(); } },
+  { name: "View: Show Terminal", keys: "⌃`", run: () => { state.panel = "terminal"; renderPanel(); } },
+  { name: "View: Close Editor", keys: "⌘W", run: () => state.active && closeTab(state.active) },
+];
+const pal = { el: document.getElementById("palette-backdrop"), input: document.getElementById("palette-input"), list: document.getElementById("palette-list"), sel: 0, items: COMMANDS };
+
+function renderPalette() {
+  const q = pal.input.value.toLowerCase();
+  pal.items = COMMANDS.filter((c) => c.name.toLowerCase().includes(q));
+  pal.sel = Math.min(pal.sel, Math.max(pal.items.length - 1, 0));
+  pal.list.innerHTML = pal.items.length
+    ? pal.items.map((c, i) => `<li role="option" data-cmd="${i}" aria-selected="${i === pal.sel}"><span>${c.name}</span>${c.keys ? `<span class="kbd">${c.keys}</span>` : ""}</li>`).join("")
+    : `<li class="muted">No matching commands</li>`;
+}
+function openPalette() { pal.el.dataset.open = "true"; pal.input.value = ""; pal.sel = 0; renderPalette(); pal.input.focus(); }
+function closePalette() { pal.el.dataset.open = "false"; }
+function runSelected(i = pal.sel) { const c = pal.items[i]; closePalette(); c && c.run(); }
+
+document.getElementById("open-palette").addEventListener("click", openPalette);
+pal.input.addEventListener("input", () => { pal.sel = 0; renderPalette(); });
+pal.list.addEventListener("click", (e) => { const li = e.target.closest("[data-cmd]"); if (li) runSelected(+li.dataset.cmd); });
+pal.el.addEventListener("click", (e) => { if (e.target === pal.el) closePalette(); });
+document.addEventListener("keydown", (e) => {
+  if ((e.metaKey || e.ctrlKey) && e.shiftKey && e.key.toLowerCase() === "p") { e.preventDefault(); return openPalette(); }
+  if (pal.el.dataset.open !== "true") return;
+  if (e.key === "Escape") closePalette();
+  else if (e.key === "ArrowDown") { e.preventDefault(); pal.sel = (pal.sel + 1) % pal.items.length; renderPalette(); }
+  else if (e.key === "ArrowUp") { e.preventDefault(); pal.sel = (pal.sel - 1 + pal.items.length) % pal.items.length; renderPalette(); }
+  else if (e.key === "Enter") runSelected();
+});
+</script>
+
+<template id="components-tpl">
+  <div class="preview">
+    <div class="group">
+      <p class="label">Preview</p>
+      <h1>Workbench components</h1>
+      <p class="muted">The same tokens as editorial mode, at tool density. 13px text, 3px corners, small steps of the Fibonacci scale.</p>
+    </div>
+
+    <div class="group">
+      <p class="label">Buttons</p>
+      <div class="row">
+        <button class="btn" type="button">Run build</button>
+        <button class="btn btn--secondary" type="button">Cancel</button>
+        <button class="btn btn--ghost" type="button">Details</button>
+        <button class="btn btn--danger" type="button">Delete branch</button>
+        <button class="btn btn--ghost" type="button" title="More">⋯</button>
+      </div>
+    </div>
+
+    <div class="group">
+      <p class="label">Inputs</p>
+      <div class="row" style="align-items: start; gap: var(--space-5)">
+        <label class="field"><span>Workspace name</span><input class="input" value="slag-app"><span class="muted">Shown in the title bar.</span></label>
+        <label class="field"><span>Default branch</span><select class="input"><option>main</option><option>develop</option></select></label>
+      </div>
+      <label class="check"><input type="checkbox" checked> Format on save</label>
+      <label class="check"><input type="checkbox"> Show minimap</label>
+    </div>
+
+    <div class="group">
+      <p class="label">Settings rows</p>
+      <div class="setting"><div><h4>Editor: Font Size</h4><p>Controls the font size in pixels.</p></div><input class="input" value="13"></div>
+      <div class="setting"><div><h4>Editor: Line Height</h4><p>13 × 1.618 rounds to 21.</p></div><input class="input" value="21"></div>
+      <div class="setting"><div><h4>Workbench: Color Theme</h4><p>Follows the operating system unless set.</p></div><select class="input"><option>Slag (auto)</option><option>Slag Light</option><option>Slag Dark</option></select></div>
+    </div>
+
+    <div class="group">
+      <p class="label">Status and tags</p>
+      <div class="row">
+        <span class="tag">main</span>
+        <span class="tag">v0.1.0</span>
+        <span class="row" style="gap: var(--space-2); color: var(--success)"><span class="dot"></span><span style="color: var(--fg)">Passing</span></span>
+        <span class="row" style="gap: var(--space-2); color: var(--warning)"><span class="dot"></span><span style="color: var(--fg)">Pending</span></span>
+        <span class="row" style="gap: var(--space-2); color: var(--danger)"><span class="dot"></span><span style="color: var(--fg)">Failed</span></span>
+        <span class="count">13</span>
+        <span class="kbd">⌘K</span>
+      </div>
+      <div class="progress" style="max-width: 21rem"><div></div></div>
+    </div>
+
+    <div class="group">
+      <p class="label">Table</p>
+      <table>
+        <thead><tr><th>Job</th><th>Branch</th><th>Status</th><th style="text-align:right">Time</th></tr></thead>
+        <tbody>
+          <tr><td>build</td><td><code>main</code></td><td style="color: var(--success)">passed</td><td style="text-align:right; font-family: var(--font-mono)">1m 21s</td></tr>
+          <tr><td>test</td><td><code>main</code></td><td style="color: var(--success)">passed</td><td style="text-align:right; font-family: var(--font-mono)">3m 34s</td></tr>
+          <tr><td>lint</td><td><code>feat/workbench</code></td><td style="color: var(--danger)">failed</td><td style="text-align:right; font-family: var(--font-mono)">0m 13s</td></tr>
+          <tr><td>deploy</td><td><code>main</code></td><td class="muted">queued</td><td style="text-align:right; font-family: var(--font-mono)">—</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="group">
+      <p class="label">Notification</p>
+      <div class="toast">
+        <svg class="icon--sm" style="color: var(--info); margin-top: var(--space-1)"><use href="#i-info"/></svg>
+        <div class="grow">
+          <p>A new version of the Slag theme is available.</p>
+          <div class="row"><button class="btn" type="button">Update</button><button class="btn btn--secondary" type="button">Later</button></div>
+        </div>
+        <button class="btn btn--ghost" type="button" title="Dismiss"><svg class="icon--sm"><use href="#i-x"/></svg></button>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script>
+if (location.hash === "#components") state.active = "components";
+renderTabs(); renderEditor(); renderView(); renderPanel();
+</script>
+
+</body>
+</html>

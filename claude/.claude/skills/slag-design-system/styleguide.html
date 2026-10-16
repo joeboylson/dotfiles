@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Slag Design System</title>
+<title>Slag Editorial</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -52,18 +52,48 @@
   .row { display: flex; flex-wrap: wrap; gap: var(--space-4); align-items: center; }
   .block { margin-top: var(--space-7); }
   .block > h3 { margin-bottom: var(--space-5); }
+  /* Demo-only pieces for the "in use" section. */
+  .stats { display: grid; gap: var(--space-6); grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr)); }
+  .stat { border-top: var(--hairline); padding-top: var(--space-4); }
+  .stat .num { font-family: var(--font-mono); font-size: var(--text-title); letter-spacing: var(--tracking-tight); line-height: var(--leading-tight); }
+  .stat .muted { margin: var(--space-3) 0 0; font-size: var(--text-label); }
+  pre.code {
+    margin: 0; padding: var(--space-5); overflow-x: auto;
+    border: var(--hairline); border-radius: var(--radius-lg);
+    font-size: var(--text-label); line-height: var(--leading-prose);
+  }
+  pre.code .k { color: var(--red); }
+  pre.code .s { color: var(--green); }
+  pre.code .c { color: var(--fg-muted); }
+  pre.code .f { color: var(--blue); }
+  blockquote.pull {
+    margin: 0; padding-left: var(--space-5); border-left: 2px solid var(--accent);
+    font-size: var(--text-lead); line-height: var(--leading-normal); max-width: var(--measure);
+  }
+  blockquote.pull cite { display: block; margin-top: var(--space-4); font-style: normal; }
+  figure { margin: 0; }
+  figure svg { width: 100%; border: var(--hairline); border-radius: var(--radius-lg); }
+  figcaption { margin-top: var(--space-3); }
+  .slide {
+    aspect-ratio: 16 / 9; display: flex; flex-direction: column; justify-content: space-between;
+    padding: var(--space-7); border: var(--hairline); border-radius: var(--radius-lg);
+  }
+  .slide .display { max-width: 16ch; }
+  .slide-foot { display: flex; justify-content: space-between; }
+  @media (max-width: 48rem) { .slide { padding: var(--space-5); } .slide .display { font-size: var(--text-title); } }
 </style>
 </head>
 <body>
 
 <header class="site-header">
   <div class="container">
-    <span class="label">Slag / Design System</span>
+    <span class="label">Slag / Editorial</span>
     <nav class="row">
       <a class="btn btn--ghost" href="#color">Color</a>
       <a class="btn btn--ghost" href="#type">Type</a>
       <a class="btn btn--ghost" href="#space">Space</a>
       <a class="btn btn--ghost" href="#components">Components</a>
+      <a class="btn btn--ghost" href="#in-use">In use</a>
       <button class="btn btn--secondary" id="theme-toggle" type="button">Theme</button>
     </nav>
   </div>
@@ -263,6 +293,93 @@
         <h3>Input</h3>
         <label class="label" for="demo-input">Email</label>
         <input class="input" id="demo-input" style="margin-top: var(--space-2)" type="email" placeholder="you@example.com">
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="in-use">
+    <div class="container">
+      <div class="section-head">
+        <p class="label">05 — In use</p>
+        <div>
+          <h2>What an explainer looks like.</h2>
+          <p class="lead" style="margin-top: var(--space-4)">
+            The same pieces, arranged as a page someone reads top to bottom — a
+            slide, a few numbers, a diagram, a quote, and a snippet.
+          </p>
+        </div>
+      </div>
+
+      <div class="block">
+        <h3>Slide</h3>
+        <div class="slide">
+          <p class="label">Q4 planning — 03 / 12</p>
+          <p class="display">Retrieval first, then reading.</p>
+          <div class="slide-foot">
+            <span class="label">Platform team</span>
+            <span class="label">2026-09-30</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="block">
+        <h3>Numbers</h3>
+        <div class="stats">
+          <div class="stat"><div class="num">42%</div><p class="muted">Fewer tokens per ticket</p></div>
+          <div class="stat"><div class="num">3.4×</div><p class="muted">Faster first answer</p></div>
+          <div class="stat"><div class="num">610</div><p class="muted">Pixels in the reading column</p></div>
+          <div class="stat"><div class="num">0</div><p class="muted">Drop shadows</p></div>
+        </div>
+      </div>
+
+      <div class="block">
+        <h3>Figure</h3>
+        <figure>
+          <svg viewBox="0 0 610 144" role="img" aria-label="Request flows from question to search to read to answer">
+            <g font-family="Geist Mono, monospace" font-size="13" fill="var(--fg)">
+              <g fill="none" stroke="var(--border)"><rect x="21" y="55" width="110" height="34" rx="8"/><rect x="178" y="55" width="110" height="34" rx="8"/><rect x="335" y="55" width="110" height="34" rx="8"/></g>
+              <rect x="489" y="55" width="100" height="34" rx="8" fill="none" stroke="var(--accent)"/>
+              <g stroke="var(--fg-muted)"><line x1="131" y1="72" x2="178" y2="72"/><line x1="288" y1="72" x2="335" y2="72"/><line x1="445" y1="72" x2="489" y2="72"/></g>
+              <text x="76" y="77" text-anchor="middle">question</text>
+              <text x="233" y="77" text-anchor="middle">search</text>
+              <text x="390" y="77" text-anchor="middle">read</text>
+              <text x="539" y="77" text-anchor="middle">answer</text>
+            </g>
+          </svg>
+          <figcaption class="label">Fig. 1 — Search narrows what gets read</figcaption>
+        </figure>
+      </div>
+
+      <div class="block">
+        <h3>Quote</h3>
+        <blockquote class="pull">
+          If it looks busy, delete something rather than styling it.
+          <cite class="label">House rule</cite>
+        </blockquote>
+      </div>
+
+      <div class="block">
+        <h3>Code</h3>
+        <pre class="code"><span class="c">// Style with tokens, never raw values.</span>
+<span class="k">const</span> card = <span class="f">css</span>`
+  padding: <span class="s">var(--space-6)</span>;
+  border: <span class="s">var(--hairline)</span>;
+  border-radius: <span class="s">var(--radius-lg)</span>;
+`;</pre>
+      </div>
+
+      <div class="block prose">
+        <p class="label">Article</p>
+        <h3 style="margin-top: var(--space-4)">Why the column stops at 610</h3>
+        <p style="margin-top: var(--space-4)">
+          Lines longer than about seventy characters get hard to track back to the
+          start of the next one. At 17 pixels, 610 lands right in that range, and
+          it happens to be the next Fibonacci number after 377.
+        </p>
+        <p>
+          The page frame around it is 987, so there's room for a numbered margin
+          on the left without crowding the text.
+        </p>
       </div>
     </div>
   </section>
