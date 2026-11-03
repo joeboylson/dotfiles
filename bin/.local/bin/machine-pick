@@ -1,0 +1,54 @@
+#!/usr/bin/env zsh
+# Choose a machine for a new Ghostty tab/split.
+#   number key = open that machine right away
+#   enter      = open the highlighted row (starts on the last one you chose)
+#   tab        = switch between favorites and the full list
+#   esc        = local
+# Prints the ssh target to stdout, or nothing for local.
+#
+# Machines come from ~/.config/machine-pick/machines.zsh (kept out of the repo
+# because it names your hosts). It sets `machines` and `fav_count`:
+#   fav_count=2
+#   machines=("local" "box   me@box.example.com" "other   me@other.lan")
+state=~/.cache/machine-pick-last
+config=${MACHINE_PICK_CONFIG:-~/.config/machine-pick/machines.zsh}
+fav_count=1
+machines=("local")
+[[ -f $config ]] && source $config
+
+row() { print -r -- "$1  ${machines[$1]}"; }
+
+list() {
+  local n=$fav_count i
+  [[ $1 == all ]] && n=${#machines}
+  for i in {1..$n}; do row $i; done
+}
+
+case $1 in
+  --list) list $2; exit 0 ;;
+  --row)  row $2;  exit 0 ;;
+esac
+
+# Start the cursor on the last machine you chose, if it's a favorite.
+last=$(cat $state 2>/dev/null)
+start=1
+for i in {1..$fav_count}; do [[ ${machines[$i]%% *} == $last ]] && start=$i; done
+
+self=${0:A}
+binds=()
+for i in {1..${#machines}}; do binds+=(--bind "$i:become($self --row $i)"); done
+
+pick=$(list fav | fzf --height=~10 --reverse --no-info --no-sort \
+  --prompt='favorites> ' \
+  --header='1-9 = open · enter = pick · tab = show all · esc = local' \
+  --bind "start:pos($start)" \
+  $binds \
+  --bind "tab:transform:[ \"\$FZF_PROMPT\" = 'favorites> ' ] \
+    && echo 'reload($self --list all)+change-prompt(all> )' \
+    || echo 'reload($self --list fav)+change-prompt(favorites> )'") || exit 0
+
+fields=(${=pick})
+name=$fields[2]
+mkdir -p ${state:h}; print -r -- $name > $state
+[[ $name == local ]] && exit 0
+print -r -- $fields[-1]

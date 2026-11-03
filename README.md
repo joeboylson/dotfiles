@@ -66,6 +66,51 @@ other repos can drop their own skills alongside these.
 | `zsh`       | `~/.zshrc`, `~/.zshenv` |
 | `xfce`      | eight XFCE settings channels under `~/.config/xfce4/xfconf/` (see below) |
 | `chrome`    | `~/.local/share/slag/chrome/slag/`, `slag-light/` (unpacked themes) |
+| `bin`       | `~/.local/bin/machine-pick`, `claude-sessions` (stow with `--no-folding`) |
+
+### Terminal tools (`bin`)
+
+Both need `fzf`. Stow with `stow --no-folding -t ~ bin` so `~/.local/bin` stays
+a real folder other tools can use too.
+
+**`machine-pick`** asks which machine a new Ghostty tab or split should open
+on. Number keys open a machine right away, Enter opens the highlighted one
+(the last you picked), Tab shows machines beyond the favorites, Esc stays
+local. It prints the ssh target, so the shell decides what to do with it. Your
+machines go in `~/.config/machine-pick/machines.zsh`, which is not in this repo:
+
+```zsh
+fav_count=2
+machines=(
+  "local"
+  "box     me@box.example.com"
+  "other   me@other.lan"
+)
+```
+
+To run it on every new Ghostty tab, put this at the top of `~/.zshrc`, before
+oh-my-zsh loads, so it shows up instantly:
+
+```zsh
+if [[ -o interactive && $TERM_PROGRAM == ghostty && -z $SSH_CONNECTION \
+      && -z $MACHINE_PICKED && $MACHINE_PICKER != 0 ]]; then
+  export MACHINE_PICKED=1
+  _mp_target=$($HOME/.local/bin/machine-pick)
+  [[ -n $_mp_target ]] && exec ssh $_mp_target
+  unset _mp_target
+fi
+```
+
+Pair it with ssh connection sharing (`ControlMaster auto`, a `ControlPath`,
+and a short `ControlPersist` such as `10s`) so every split after the first
+connects instantly.
+
+**`claude-sessions`** searches past Claude Code sessions and resumes one in its
+own folder. It lists only sessions that have a name (`claude --name`, or
+`/rename` inside a session), so sessions started by programs stay out of the
+way; `--all` shows everything. Enter resumes, Ctrl-O opens a shell in the
+folder, Ctrl-Y copies the session id, Ctrl-X hides a session from the list
+(kept in `~/.cache/claude-sessions-hidden`; delete a line to bring it back).
 
 ### Claude Code status line
 

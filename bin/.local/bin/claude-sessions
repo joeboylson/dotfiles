@@ -1,0 +1,205 @@
+#!/usr/bin/env python3
+"""Search past Claude Code sessions with fzf and resume one in its own folder.
+
+  enter   resume the session (cd into its folder first)
+  ctrl-y  copy the session id
+  ctrl-o  just open a shell in the session's folder
+  ctrl-x  hide the session from this list (the session itself is kept)
+  esc     quit
+
+Only named sessions are shown (your `claude` shortcut asks for a name);
+`claude-sessions --all` shows every session, including Legion and hindsight runs.
+
+Session info is cached in ~/.cache/claude-sessions.json and only re-read
+when a session file changes, so it stays fast with thousands of sessions.
+"""
+import json
+import os
+import subprocess
+import sys
+import time
+
+HOME = os.path.expanduser("~")
+PROJECTS = os.path.join(HOME, ".claude", "projects")
+CACHE = os.path.join(HOME, ".cache", "claude-sessions.json")
+HIDDEN = os.path.join(HOME, ".cache", "claude-sessions-hidden")
+CACHE_VERSION = 4
+CLAUDE_ARGS = ["--verbose", "--add-dir", os.path.join(HOME, "@")]
+
+
+def prompt_text(msg):
+    """Return the typed text of a user message, or None if it isn't one."""
+    content = (msg or {}).get("content")
+    if isinstance(content, list):
+        parts = [c.get("text", "") for c in content if isinstance(c, dict) and c.get("type") == "text"]
+        content = " ".join(parts)
+    if not isinstance(content, str):
+        return None
+    content = " ".join(content.split())
+    is_system_text = content.startswith("<") or content.startswith("[Request interrupted")
+    return None if not content or is_system_text else content
+
+
+def read_session(path):
+    info = {"cwd": None, "branch": None, "title": None, "first": None, "last": None, "prompts": 0,
+            "automated": False, "name": None}
+    with open(path, errors="replace") as f:
+        for line in f:
+            is_interesting = ('"user"' in line or '"ai-title"' in line
+                              or '"custom-title"' in line or '"cwd"' in line)
+            if not is_interesting:
+                continue
+            try:
+                d = json.loads(line)
+            except ValueError:
+                continue
+            if d.get("isSidechain"):
+                continue
+            if not info["cwd"] and d.get("cwd"):
+                info["cwd"] = d["cwd"]
+                info["branch"] = d.get("gitBranch")
+                info["automated"] = d.get("entrypoint") == "sdk-cli"
+            if d.get("type") == "ai-title" and d.get("aiTitle"):
+                info["title"] = d["aiTitle"]
+            if d.get("type") == "custom-title":
+                info["name"] = d.get("customTitle") or None
+            if d.get("type") == "user" and not d.get("isMeta"):
+                text = prompt_text(d.get("message"))
+                if text:
+                    info["prompts"] += 1
+                    info["first"] = info["first"] or text
+                    info["last"] = text
+    return info
+
+
+def load_sessions(show_all=False):
+    try:
+        with open(CACHE) as f:
+            cache = json.load(f)
+    except (OSError, ValueError):
+        cache = {}
+    fresh = {}
+    for project in os.listdir(PROJECTS):
+        pdir = os.path.join(PROJECTS, project)
+        if not os.path.isdir(pdir):
+            continue
+        for name in os.listdir(pdir):
+            if not name.endswith(".jsonl"):
+                continue
+            path = os.path.join(pdir, name)
+            st = os.stat(path)
+            key = f"{CACHE_VERSION}:{st.st_mtime}:{st.st_size}"
+            entry = cache.get(path)
+            if not entry or entry.get("key") != key:
+                entry = {"key": key, "mtime": st.st_mtime, "id": name[:-6], **read_session(path)}
+            fresh[path] = entry
+    os.makedirs(os.path.dirname(CACHE), exist_ok=True)
+    with open(CACHE, "w") as f:
+        json.dump(fresh, f)
+    hidden = hidden_ids()
+    sessions = [s for s in fresh.values()
+                if s["prompts"] and s["cwd"] and (show_all or (s["name"] and s["id"] not in hidden))]
+    return sorted(sessions, key=lambda s: s["mtime"], reverse=True)
+
+
+def hidden_ids():
+    try:
+        with open(HIDDEN) as f:
+            return {line.strip() for line in f if line.strip()}
+    except OSError:
+        return set()
+
+
+def hide(session_id):
+    with open(HIDDEN, "a") as f:
+        f.write(session_id + "\n")
+
+
+def rows(sessions):
+    out = []
+    for s in sessions:
+        if s["name"]:
+            title = f"\033[1;33m{s['name']}\033[0m  \033[2m{s['title'] or ''}\033[0m"
+        else:
+            title = s["title"] or s["first"]
+        out.append(f"{s['id']}\t{when(s['mtime']):>8}  \033[36m{short(s['cwd']):<38}\033[0m  {title}")
+    return "\n".join(out)
+
+
+def short(path):
+    return "~" + path[len(HOME):] if path.startswith(HOME) else path
+
+
+def when(mtime):
+    age = time.time() - mtime
+    if age < 3600:
+        return f"{int(age // 60)}m ago"
+    if age < 86400:
+        return f"{int(age // 3600)}h ago"
+    return time.strftime("%b %d", time.localtime(mtime))
+
+
+def preview(session_id):
+    for s in json.load(open(CACHE)).values():
+        if s["id"] != session_id:
+            continue
+        missing = "" if os.path.isdir(s["cwd"]) else "  (folder no longer exists)"
+        heading = s["name"] or s["title"] or "(untitled)"
+        print(f"\033[1m{heading}\033[0m")
+        if s["name"] and s["title"]:
+            print(f"\033[2m{s['title']}\033[0m")
+        print()
+        print(f"folder   {short(s['cwd'])}{missing}")
+        print(f"branch   {s['branch'] or '-'}")
+        print(f"updated  {time.strftime('%a %b %d %H:%M', time.localtime(s['mtime']))}")
+        print(f"prompts  {s['prompts']}")
+        print(f"id       {s['id']}\n")
+        print(f"\033[2mfirst prompt\033[0m\n{s['first']}\n")
+        print(f"\033[2mlast prompt\033[0m\n{s['last']}")
+        return
+
+
+def main():
+    show_all = "--all" in sys.argv
+    if len(sys.argv) >= 3 and sys.argv[1] == "--preview":
+        return preview(sys.argv[2])
+    if len(sys.argv) >= 3 and sys.argv[1] == "--hide":
+        return hide(sys.argv[2])
+    if len(sys.argv) >= 2 and sys.argv[1] == "--rows":
+        return print(rows(load_sessions(show_all)))
+
+    sessions = load_sessions(show_all)
+    self_path = os.path.abspath(__file__)
+    rows_cmd = f"{self_path} --rows" + (" --all" if show_all else "")
+    result = subprocess.run(
+        ["fzf", "--ansi", "--no-sort", "--reverse", "--height=90%", "--no-info",
+         "--delimiter=\t", "--with-nth=2..", "--prompt=sessions> ",
+         "--header=enter = resume · ctrl-o = open folder · ctrl-y = copy id · ctrl-x = hide · esc = quit",
+         f"--bind=ctrl-x:execute-silent({self_path} --hide {{1}})+reload({rows_cmd})",
+         "--expect=ctrl-o,ctrl-y",
+         f"--preview={self_path} --preview {{1}}", "--preview-window=down,45%,wrap"],
+        input=rows(sessions), capture_output=False, stdout=subprocess.PIPE, text=True,
+    )
+    if result.returncode != 0:
+        return
+    key, _, line = result.stdout.partition("\n")
+    session_id = line.split("\t", 1)[0].strip()
+    session = next((s for s in sessions if s["id"] == session_id), None)
+    if not session:
+        return
+
+    if key == "ctrl-y":
+        subprocess.run(["pbcopy"], input=session_id, text=True)
+        print(f"copied {session_id}")
+        return
+    if not os.path.isdir(session["cwd"]):
+        sys.exit(f"folder no longer exists: {session['cwd']}")
+    os.chdir(session["cwd"])
+    if key == "ctrl-o":
+        shell = os.environ.get("SHELL", "/bin/zsh")
+        os.execvp(shell, [shell])
+    os.execvp("claude", ["claude", *CLAUDE_ARGS, "--resume", session_id])
+
+
+if __name__ == "__main__":
+    main()
