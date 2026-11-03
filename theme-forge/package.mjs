@@ -35,6 +35,7 @@ const EXT_DIR = path.join(OUT, "vscode/.vscode/extensions", EXT_ID);
 await fsp.rm(OUT, { recursive: true, force: true });
 for (const d of [
   path.join(OUT, "alacritty/.config/alacritty"),
+  path.join(OUT, "ghostty/.config/ghostty/themes"),
   path.join(OUT, "nvim/.config/nvim/colors"),
   path.join(OUT, "polybar/.config/polybar"),
   path.join(OUT, "rofi/.config/rofi/themes"),
@@ -71,6 +72,10 @@ for (const preset of SHIP) {
   await fsp.copyFile(
     path.join(ROOT, "dist/alacritty", `${id}.toml`),
     path.join(OUT, "alacritty/.config/alacritty", `${id}.toml`),
+  );
+  await fsp.copyFile(
+    path.join(ROOT, "dist/ghostty", id),
+    path.join(OUT, "ghostty/.config/ghostty/themes", id),
   );
   await fsp.copyFile(
     path.join(ROOT, "dist/nvim/colors", `${id}.lua`),

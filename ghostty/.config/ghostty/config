@@ -1,0 +1,8 @@
+# Ghostty follows the macOS appearance itself, so no sync script is needed.
+theme = light:slag-light,dark:slag
+
+font-family = "JetBrainsMono Nerd Font"
+font-size = 14
+
+# Send Ghostty's terminfo and env over ssh so remote panes render correctly.
+shell-integration-features = ssh-env,ssh-terminfo

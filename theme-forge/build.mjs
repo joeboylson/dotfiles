@@ -4,6 +4,7 @@ import { spawnSync } from "node:child_process";
 for (const target of [
   "build-theme.mjs",
   "build-alacritty.mjs",
+  "build-ghostty.mjs",
   "build-neovim.mjs",
   "build-polybar.mjs",
   "build-rofi.mjs",

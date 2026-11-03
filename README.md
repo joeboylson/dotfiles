@@ -58,6 +58,7 @@ other repos can drop their own skills alongside these.
 | `tmux`      | `~/.tmux.conf` |
 | `claude`    | `~/.claude/commands/`, `~/.claude/skills/slag-design-system/`, `~/.claude/statusline.sh` |
 | `alacritty` | `~/.config/alacritty/slag.toml`, `slag-light.toml` |
+| `ghostty`   | `~/.config/ghostty/config`, `themes/slag`, `themes/slag-light` |
 | `nvim`      | `~/.config/nvim/colors/slag.lua`, `slag-light.lua` |
 | `vscode`    | `~/.vscode/extensions/slag/` |
 | `polybar`   | `~/.config/polybar/` (config, scripts, `slag.ini`, `slag-light.ini`) |
@@ -132,7 +133,7 @@ Settings are not stowed, so point Claude Code at it yourself — add to
 It needs `jq`.
 
 `theme-forge` is not in this table on purpose — it is the palette source that
-generates `alacritty`, `nvim`, `vscode`, `chrome`, the color files in `polybar`
+generates `alacritty`, the `ghostty` themes, `nvim`, `vscode`, `chrome`, the color files in `polybar`
 and `rofi`, and the palette sheet in `docs`. Nothing in it belongs in `~`.
 
 ## Docs
@@ -146,7 +147,7 @@ this repo:
 
 ## Slag theme
 
-`alacritty`, `nvim`, `vscode`, `chrome`, `polybar` and `rofi` all carry the same
+`alacritty`, `ghostty`, `nvim`, `vscode`, `chrome`, `polybar` and `rofi` all carry the same
 theme, in dark and light. The theme files are generated from a single palette in
 `theme-forge`, so never edit them by hand (`polybar/.../slag*.ini`,
 `rofi/.../themes/slag*.rasi`) — the next build overwrites them. To change the theme:
@@ -165,6 +166,8 @@ After stowing:
 
 - **Alacritty** — add to `alacritty.toml`:
   `general.import = ["~/.config/alacritty/slag.toml"]`
+- **Ghostty** — nothing to do; `config` already has
+  `theme = light:slag-light,dark:slag`, which follows the macOS appearance
 - **Neovim** — `:colorscheme slag` (or `slag-light`)
 - **VS Code** — reload the window, then pick "Slag" in the theme picker
 - **Chrome** — open `chrome://extensions`, turn on Developer mode, choose
