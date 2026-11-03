@@ -13,6 +13,7 @@ Only named sessions are shown (your `claude` shortcut asks for a name);
 Session info is cached in ~/.cache/claude-sessions.json and only re-read
 when a session file changes, so it stays fast with thousands of sessions.
 """
+import base64
 import json
 import os
 import shutil
@@ -109,6 +110,41 @@ def clipboard_command():
     return next((c for c in candidates if shutil.which(c[0])), None)
 
 
+def copy_through_terminal(text):
+    """Ask the terminal itself to set the clipboard (OSC 52).
+
+    Works over ssh, where the remote machine has no display: the escape code
+    travels back to the local terminal (Ghostty), which puts the text on the
+    local clipboard. Inside tmux the code has to be wrapped to pass through.
+    """
+    payload = base64.b64encode(text.encode()).decode()
+    sequence = f"\033]52;c;{payload}\a"
+    if os.environ.get("TMUX"):
+        sequence = f"\033Ptmux;\033{sequence}\033\\"
+    try:
+        with open("/dev/tty", "w") as tty:
+            tty.write(sequence)
+        return True
+    except OSError:
+        return False
+
+
+def copy_to_clipboard(text):
+    """Copy text and return a message saying what happened."""
+    is_over_ssh = bool(os.environ.get("SSH_CONNECTION"))
+    copier = None if is_over_ssh else clipboard_command()
+    if copier:
+        # Output goes to DEVNULL: xclip leaves a child running that holds the
+        # selection, and waiting on its pipes would hang.
+        result = subprocess.run(copier, input=text, text=True,
+                                stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        if result.returncode == 0:
+            return f"copied {text}"
+    if copy_through_terminal(text):
+        return f"sent {text} to your terminal's clipboard"
+    return f"couldn't copy; session id: {text}"
+
+
 def hidden_ids():
     try:
         with open(HIDDEN) as f:
@@ -196,12 +232,7 @@ def main():
         return
 
     if key == "ctrl-y":
-        copier = clipboard_command()
-        if copier:
-            subprocess.run(copier, input=session_id, text=True)
-            print(f"copied {session_id}")
-        else:
-            print(f"no clipboard tool found; session id: {session_id}")
+        print(copy_to_clipboard(session_id))
         return
     if not os.path.isdir(session["cwd"]):
         sys.exit(f"folder no longer exists: {session['cwd']}")
