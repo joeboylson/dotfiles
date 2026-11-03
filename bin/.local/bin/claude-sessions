@@ -15,6 +15,7 @@ when a session file changes, so it stays fast with thousands of sessions.
 """
 import json
 import os
+import shutil
 import subprocess
 import sys
 import time
@@ -100,6 +101,12 @@ def load_sessions(show_all=False):
     sessions = [s for s in fresh.values()
                 if s["prompts"] and s["cwd"] and (show_all or (s["name"] and s["id"] not in hidden))]
     return sorted(sessions, key=lambda s: s["mtime"], reverse=True)
+
+
+def clipboard_command():
+    """The first clipboard tool this machine has: macOS, Wayland, then X11."""
+    candidates = [["pbcopy"], ["wl-copy"], ["xclip", "-selection", "clipboard"], ["xsel", "--clipboard", "--input"]]
+    return next((c for c in candidates if shutil.which(c[0])), None)
 
 
 def hidden_ids():
@@ -189,8 +196,12 @@ def main():
         return
 
     if key == "ctrl-y":
-        subprocess.run(["pbcopy"], input=session_id, text=True)
-        print(f"copied {session_id}")
+        copier = clipboard_command()
+        if copier:
+            subprocess.run(copier, input=session_id, text=True)
+            print(f"copied {session_id}")
+        else:
+            print(f"no clipboard tool found; session id: {session_id}")
         return
     if not os.path.isdir(session["cwd"]):
         sys.exit(f"folder no longer exists: {session['cwd']}")
