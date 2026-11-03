@@ -1,3 +1,16 @@
+# Ghostty machine picker: every new tab/split asks which machine to open on.
+# Kept at the top so it shows before oh-my-zsh and nvm load. Runs only where
+# ~/.config/machine-pick/machines.zsh exists, never inside ssh, and never in a
+# shell started from an already-picked pane. MACHINE_PICKER=0 turns it off.
+if [[ -o interactive && $TERM_PROGRAM == ghostty && -z $SSH_CONNECTION \
+      && -z $MACHINE_PICKED && $MACHINE_PICKER != 0 \
+      && -f $HOME/.config/machine-pick/machines.zsh ]]; then
+  export MACHINE_PICKED=1
+  _mp_target=$($HOME/.local/bin/machine-pick)
+  [[ -n $_mp_target ]] && exec ssh $_mp_target
+  unset _mp_target
+fi
+
 # If you come from bash you might have to change your $PATH.
 # export PATH=$HOME/bin:/usr/local/bin:$PATH
 
@@ -71,6 +84,13 @@ ZSH_THEME="arrow"
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
 plugins=(git zsh-autosuggestions zsh-syntax-highlighting fast-syntax-highlighting zsh-autocomplete)
+# Load only the plugins installed on this machine, so a missing one isn't an error.
+_installed=()
+for _p in $plugins; do
+  [[ -d $ZSH/plugins/$_p || -d ${ZSH_CUSTOM:-$ZSH/custom}/plugins/$_p ]] && _installed+=$_p
+done
+plugins=($_installed)
+unset _installed _p
 source $ZSH/oh-my-zsh.sh
 
 # User configuration
@@ -119,7 +139,11 @@ export NVM_DIR="$HOME/.nvm"
 # poetry
 export PATH="$PATH:$HOME/.local/bin"
 
-alias copy='xclip -sel c'
+if [[ $OSTYPE == darwin* ]]; then
+  alias copy='pbcopy'
+else
+  alias copy='xclip -sel c'
+fi
 
 # opencode
 export PATH="$HOME/.opencode/bin:$PATH"
@@ -136,10 +160,47 @@ export PATH="$BUN_INSTALL/bin:$PATH"
 export PATH="$HOME/.local/bin:$HOME/.asdf/shims:$PATH"
 
 # asdf version manager
-. "$HOME/.asdf/asdf.sh"
-fpath=(${ASDF_DIR}/completions $fpath)
-autoload -Uz compinit && compinit
-export PATH="$HOME/.asdf/installs/nodejs/22.15.0/bin:$PATH"
+if [ -f "$HOME/.asdf/asdf.sh" ]; then
+  . "$HOME/.asdf/asdf.sh"
+  fpath=(${ASDF_DIR}/completions $fpath)
+  autoload -Uz compinit && compinit
+  export PATH="$HOME/.asdf/installs/nodejs/22.15.0/bin:$PATH"
+fi
+
+export EDITOR=nvim
+export VISUAL=nvim
+
+# claude: asks for a session name when you start a new session yourself, so
+# every session you start has one (claude-sessions lists only named sessions).
+# Programs that run claude (Legion, hindsight) call the real binary, not this.
+claude() {
+  local -a base=(--verbose --add-dir $HOME/@)
+  local arg
+  local has_own_name_or_resume=0
+  for arg in "$@"; do
+    case $arg in
+      -n|--name|--name=*|-r|--resume|--resume=*|-c|--continue|-p|--print|-h|--help|-v|--version)
+        has_own_name_or_resume=1 ;;
+    esac
+  done
+  local is_subcommand=0
+  case $1 in
+    agents|attach|auth|auto-mode|doctor|gateway|import|install|logs|mcp|plugin|plugins|purge|respawn|rm|setup-token|stop|kill|ultrareview|update|upgrade)
+      is_subcommand=1 ;;
+  esac
+  if (( has_own_name_or_resume || is_subcommand )) || [[ ! -t 0 ]]; then
+    command claude $base "$@"
+    return
+  fi
+  local name=""
+  while [[ -z ${name// } ]]; do
+    read "name?session name: " || return 130
+  done
+  command claude $base --name "$name" "$@"
+}
+
+# Search and resume named Claude sessions
+alias cs="claude-sessions"
 
 # Machine-specific settings (project aliases, SDK paths, monitor layout) live in
 # ~/.zshrc.local, which is not in the dotfiles repo. Sourced last so it wins.
