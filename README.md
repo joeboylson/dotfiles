@@ -59,6 +59,7 @@ other repos can drop their own skills alongside these.
 | `claude`    | `~/.claude/commands/`, `~/.claude/skills/slag-design-system/`, `~/.claude/statusline.sh` |
 | `alacritty` | `~/.config/alacritty/slag.toml`, `slag-light.toml` |
 | `ghostty`   | `~/.config/ghostty/config`, `themes/slag`, `themes/slag-light` |
+| `kitty`     | `~/.config/kitty/kitty.conf`, light/dark/no-preference `*-theme.auto.conf` |
 | `nvim`      | `~/.config/nvim/colors/slag.lua`, `slag-light.lua` |
 | `vscode`    | `~/.vscode/extensions/slag/` |
 | `polybar`   | `~/.config/polybar/` (config, scripts, `slag.ini`, `slag-light.ini`) |
@@ -74,8 +75,8 @@ other repos can drop their own skills alongside these.
 Both need `fzf`. Stow with `stow --no-folding -t ~ bin` so `~/.local/bin` stays
 a real folder other tools can use too.
 
-**`machine-pick`** asks which machine a new Ghostty tab or split should open
-on. Number keys open a machine right away, Enter opens the highlighted one
+**`machine-pick`** asks which machine a new Ghostty or kitty tab or split
+should open on. Number keys open a machine right away, Enter opens the highlighted one
 (the last you picked), Tab shows machines beyond the favorites, Esc stays
 local. It prints the ssh target, so the shell decides what to do with it. Your
 machines go in `~/.config/machine-pick/machines.zsh`, which is not in this repo:
@@ -89,18 +90,26 @@ machines=(
 )
 ```
 
-To run it on every new Ghostty tab, put this at the top of `~/.zshrc`, before
-oh-my-zsh loads, so it shows up instantly:
+To run it on every new Ghostty or kitty tab, put this at the top of
+`~/.zshrc`, before oh-my-zsh loads, so it shows up instantly. In kitty it
+connects with `kitten ssh`, which copies kitty's terminfo to the remote:
 
 ```zsh
-if [[ -o interactive && $TERM_PROGRAM == ghostty && -z $SSH_CONNECTION \
-      && -z $MACHINE_PICKED && $MACHINE_PICKER != 0 ]]; then
+if [[ -o interactive && ( $TERM_PROGRAM == ghostty || -n $KITTY_WINDOW_ID ) \
+      && -z $SSH_CONNECTION && -z $MACHINE_PICKED && $MACHINE_PICKER != 0 ]]; then
   export MACHINE_PICKED=1
   _mp_target=$($HOME/.local/bin/machine-pick)
-  [[ -n $_mp_target ]] && exec ssh $_mp_target
+  if [[ -n $_mp_target ]]; then
+    [[ -n $KITTY_WINDOW_ID ]] && exec kitten ssh $_mp_target
+    exec ssh $_mp_target
+  fi
   unset _mp_target
 fi
 ```
+
+If kitty is launched from a Ghostty shell it inherits `MACHINE_PICKED=1` and
+the picker never shows. The `kitty` package's `kitty.conf` clears it with
+`env MACHINE_PICKED=`.
 
 Pair it with ssh connection sharing (`ControlMaster auto`, a `ControlPath`,
 and a short `ControlPersist` such as `10s`) so every split after the first
