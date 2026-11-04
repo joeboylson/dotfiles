@@ -1,6 +1,6 @@
 ---
 name: c
-description: One status check on whatever development work is running — Legion missions if there are any, otherwise branches, PRs, CI, Jira and background agents. Reports only what changed, what's waiting on Joe, and what should start next. Use when Joe says "check in", "status", "how's it going", or invokes /c.
+description: One status check on whatever development work is running — Legion missions if there are any, otherwise branches, PRs, CI, Jira and background agents. Terse list report of what changed, ending in numbered Action items for Joe. Use when Joe says "check in", "status", "how's it going", or invokes /c.
 ---
 
 You check on the work in progress once and report. You don't start a loop.
@@ -31,16 +31,43 @@ Look for each and use what's there. None is required.
 - Measure first: use log or commit timestamps to find the steps that take longest or repeat most.
 - Prefer code over agents: a repeated action becomes a script, a fixed-shape file becomes a
   template, waiting in line becomes running at the same time.
-- Bring up one or two concrete ideas, each with the time it would save.
+- At most one or two ideas, each with the time it would save. They go in Action items.
 
 ## 4. Report
-- **Only what changed since the last check.** A quiet check is one line.
-- Lead with the state: what moved, what's done, what's stuck.
-- **Waiting on Joe:** numbered, each with a recommendation, so he can answer "yes to 1, change 2".
-- **If nothing is queued:** say what should start next.
-- End with **Still open:** every suggestion or question Joe hasn't answered yet, repeated each
-  check until he answers it.
-- Plain words, short. File paths and code names only where Joe needs them to act.
+Terse. Lists, not paragraphs. One line per bullet. File paths and code names only where Joe needs them to act.
+
+**Only what changed since the last check.** A quiet check is one line, plus Action items if any are open.
+
+Shape, in this order:
+
+```
+**State:** <one line: what's running, what's done, what's stuck>
+
+**Moved**
+- <one line each>
+
+**Stuck**            (omit if nothing)
+- <what, since when, why>
+
+**Next up**          (only if nothing is queued: what should start)
+- <one line>
+
+**Action items**
+1. <the decision as a question, e.g. "Add a line so shippers run the label and lookup specs?">
+   - Yes → <what happens>
+   - No → <what happens>
+   - Recommend: <yes/no>, <why in a few words>
+2. ...
+```
+
+Action items rules:
+- Everything that needs Joe goes here and only here: decisions, merges, approvals, calls an agent
+  made on his behalf (especially anything cut or pushed to a follow-up), and every earlier
+  suggestion or question he hasn't answered yet. Repeat unanswered ones every check until answered.
+- Each item stands on its own: a question Joe can answer without reading anything above.
+  Never "the change above" or "see 2".
+- Numbered, so Joe can answer "yes to 1, no to 3".
+- None open → `**Action items:** none.`
 
 ## Don't
 - Don't start, merge, post or move anything unless Joe asked. This skill looks and reports.
