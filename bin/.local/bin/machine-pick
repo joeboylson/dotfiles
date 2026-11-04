@@ -1,5 +1,5 @@
 #!/usr/bin/env zsh
-# Choose a machine for a new Ghostty tab/split.
+# Choose a machine for a new Ghostty or kitty tab/split.
 #   number key = open that machine right away
 #   enter      = open the highlighted row (starts on the last one you chose)
 #   tab        = switch between favorites and the full list

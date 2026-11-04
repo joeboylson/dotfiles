@@ -1,13 +1,18 @@
-# Ghostty machine picker: every new tab/split asks which machine to open on.
-# Kept at the top so it shows before oh-my-zsh and nvm load. Runs only where
-# ~/.config/machine-pick/machines.zsh exists, never inside ssh, and never in a
-# shell started from an already-picked pane. MACHINE_PICKER=0 turns it off.
-if [[ -o interactive && $TERM_PROGRAM == ghostty && -z $SSH_CONNECTION \
-      && -z $MACHINE_PICKED && $MACHINE_PICKER != 0 \
+# Machine picker (Ghostty and kitty): every new tab/split asks which machine to
+# open on. Kept at the top so it shows before oh-my-zsh and nvm load. Runs only
+# where ~/.config/machine-pick/machines.zsh exists, never inside ssh, and never
+# in a shell started from an already-picked pane. MACHINE_PICKER=0 turns it off.
+# In kitty it connects with `kitten ssh`, which copies kitty's terminfo to the
+# remote (what Ghostty's ssh-terminfo does), so the remote shell renders right.
+if [[ -o interactive && ( $TERM_PROGRAM == ghostty || -n $KITTY_WINDOW_ID ) \
+      && -z $SSH_CONNECTION && -z $MACHINE_PICKED && $MACHINE_PICKER != 0 \
       && -f $HOME/.config/machine-pick/machines.zsh ]]; then
   export MACHINE_PICKED=1
   _mp_target=$($HOME/.local/bin/machine-pick)
-  [[ -n $_mp_target ]] && exec ssh $_mp_target
+  if [[ -n $_mp_target ]]; then
+    [[ -n $KITTY_WINDOW_ID ]] && exec kitten ssh $_mp_target
+    exec ssh $_mp_target
+  fi
   unset _mp_target
 fi
 
